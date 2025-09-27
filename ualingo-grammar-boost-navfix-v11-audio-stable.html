@@ -1,0 +1,1523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>UAlingo Plus — Grammar Boost (Full + Animal Sounds UA)</title>
+<style>
+  :root{
+    --duo-green:#58CC02;
+    --duo-green-2:#7FE12E;
+    --duo-dark:#071B0C;
+    --duo-text:#0e1318;
+    --duo-muted:#6b7580;
+    --panel:#ffffff;
+    --bg:#F7F9FB;
+    --border:#E5EAF0;
+    --purple:#7c4dff;
+    --gold:#ffb300;
+    --red:#ff4b4b;
+    --blue:#1cb0f6;
+    --shadow:0 14px 40px rgba(10,20,30,.08);
+    --radius:18px;
+    --radius-sm:12px;
+    --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --panel:#11161c;
+      --bg:#0b1015;
+      --duo-text:#eaf0f6;
+      --duo-muted:#99a3ad;
+      --border:#202a35;
+      --shadow:0 14px 40px rgba(0,0,0,.45);
+    }
+  }
+  html,body{height:100%}
+  body{ margin:0; background:linear-gradient(180deg,var(--bg),var(--bg)); color:var(--duo-text); font-family:var(--font); }
+  /* Topbar */
+  .topbar{
+    position:sticky; top:0; z-index:7;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:12px; padding:12px clamp(14px,3vw,28px);
+    background:rgba(255,255,255,.65); backdrop-filter: blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  @media (prefers-color-scheme: dark){ .topbar{ background:rgba(0,0,0,.25) } }
+  .logo{ display:flex; gap:10px; align-items:center; font-weight:900; letter-spacing:.2px }
+  .logo-badge{
+    width:34px; height:34px; border-radius:50%;
+    background: radial-gradient(circle at 35% 35%, var(--duo-green-2), var(--duo-green));
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.5), 0 6px 14px rgba(88,204,2,.35);
+  }
+  .topbar .stats{ display:flex; gap:12px; align-items:center }
+  .pill{
+    display:inline-flex; align-items:center; gap:8px;
+    border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-weight:700;
+    background:var(--panel);
+  }
+  .pill.heart{ color:#e91e63 } .pill.xp{ color:var(--duo-green) } .pill.streak{ color:#ff6f00 }
+  .tabbar{ display:flex; gap:6px; align-items:center }
+  .tab{ border:none; background:transparent; padding:10px 12px; border-radius:12px; font-weight:800; cursor:pointer }
+  .tab.active{ background:#e6f7ff; border:1px solid var(--border) }
+  .btn{ border:none; cursor:pointer; font-weight:900; letter-spacing:.2px; padding:12px 16px; border-radius:14px }
+  .btn.primary{ background: linear-gradient(180deg, var(--duo-green-2), var(--duo-green)); color:#fff; box-shadow:0 10px 20px rgba(88,204,2,.25) }
+  .btn.blue{ background: linear-gradient(180deg, #49c1ff, #1cb0f6); color:#fff }
+  .btn.ghost{ background:transparent; border:2px solid var(--border) }
+  .btn.red{ background: linear-gradient(180deg, #ff6a6a, #ff4b4b); color:#fff }
+  .btn:disabled{ opacity:.6; cursor:not-allowed }
+  .toggle{ display:inline-flex; align-items:center; gap:8px; font-weight:700 }
+  .toggle input{ width:42px; height:22px }
+
+  /* Views */
+  main{ max-width:1150px; margin:16px auto; padding:0 clamp(14px,3vw,28px) 90px; }
+  .view{ display:none; } .view.active{ display:block; }
+
+  /* Home */
+  .home-hero{ display:grid; grid-template-columns: 1.1fr .9fr; gap:16px; align-items:center; }
+  @media (max-width:900px){ .home-hero{ grid-template-columns:1fr } }
+  .start-card{
+    background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow);
+    padding:18px; display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center;
+  }
+  .start-card .icon{ font-size:2rem }
+  .ring{
+    --size:52px; width:var(--size); height:var(--size); border-radius:50%;
+    background: conic-gradient(var(--duo-green) var(--p,0%), #cfd8dc 0);
+    display:grid; place-items:center; color:#fff; font-weight:900; box-shadow: inset 0 0 0 4px rgba(255,255,255,.4);
+  }
+  .goal{ display:flex; gap:10px; align-items:center; justify-content:flex-end }
+  .goal .mini{ font-size:.85rem; color:var(--duo-muted) }
+
+  .path-grid{ display:grid; grid-template-columns: repeat(5, 1fr); gap:20px; margin-top:16px }
+  @media (max-width:980px){ .path-grid{ grid-template-columns: repeat(4, 1fr) } }
+  @media (max-width:740px){ .path-grid{ grid-template-columns: repeat(3, 1fr) } }
+  .skill{ position:relative; display:grid; justify-items:center; gap:10px; text-align:center; }
+  .node{
+    width:100px; height:100px; border-radius:50%; background:var(--panel);
+    border:2px solid var(--duo-green); box-shadow: var(--shadow);
+    display:grid; place-items:center; position:relative; cursor:pointer; transition: transform .12s ease;
+  }
+  .node:hover{ transform: translateY(-2px) }
+  .node.locked{ opacity:.45; filter:grayscale(1); border-style:dashed; cursor:not-allowed }
+  .node .emoji{ font-size:2rem }
+  .node .crown{ position:absolute; top:-8px; right:-6px; font-size:1.1rem; filter: drop-shadow(0 4px 10px rgba(0,0,0,.25)); }
+  .skill .name{ font-weight:800; font-size:.95rem }
+  .skill .meta{ color:var(--duo-muted); font-size:.85rem }
+  .skill .start-mini{ display:flex; gap:8px }
+
+  /* Lesson */
+  .lesson-wrap{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; max-width:950px; margin:0 auto; position:relative; }
+  .lesson-top{ display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:10px; }
+  .segments{ display:flex; gap:6px; } .seg{ width:26px; height:10px; border-radius:6px; background:#dfe7ee; border:1px solid var(--border) } .seg.done{ background:var(--duo-green) } .seg.fail{ background:var(--red) }
+  .hearts{ display:flex; gap:6px } .hearts .h{ width:20px; height:18px; background: #ffd1d8; border:1px solid #ff99a8; border-radius:5px; } .hearts .h.on{ background:#ff648a; border-color:#ff2d55 }
+  .prompt{ font-size: clamp(1.2rem, 2.2vw, 1.8rem); font-weight:900; display:flex; align-items:center; gap:10px; }
+  .prompt .speak{ border:1px solid var(--border); border-radius:10px; padding:6px 10px; cursor:pointer; }
+  .prompt .mini{ color:var(--duo-muted); font-size:.9rem; font-weight:700 }
+  .muted{ color:var(--duo-muted) }
+  .mc-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:10px; margin-top:10px }
+  .opt{ text-align:left; padding:12px 14px; border:2px solid var(--border); border-radius:14px; background:linear-gradient(180deg, rgba(127,127,127,.04), rgba(127,127,127,.02)); cursor:pointer; font-size:1.05rem; transition:border .15s, transform .05s; }
+  .opt:hover{ transform:translateY(-1px) } .opt.selected{ border-color: var(--blue) } .opt.correct{ border-color: var(--duo-green) } .opt.wrong{ border-color: var(--red) }
+  .wb-bank, .wb-answer{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
+  .chip{ border:1px solid var(--border); border-radius:10px; padding:8px 10px; background:#f2f6fa; cursor:pointer; font-weight:700; }
+  .chip.used{ opacity:.4; pointer-events:none }
+  .feedback{ border-left:4px solid var(--border); padding:10px 12px; border-radius:10px; background:#f3f7fb; margin-top:10px }
+  .feedback.good{ border-left-color: var(--duo-green); background: #e5f7dc }
+  .feedback.bad{ border-left-color: var(--red); background: #ffe8ea }
+  .feedback.info{ border-left-color: var(--blue); background:#e6f4ff }
+  .action-bar{ display:flex; gap:10px; align-items:center; margin-top:8px; flex-wrap:wrap }
+
+  /* Media task (Animal card) */
+  .mediaArea{ display:grid; place-items:center; margin:12px 0 6px }
+  .animalBtn{
+    width: 180px; height: 180px; border-radius: 28px; border: 2px dashed var(--border);
+    display:grid; place-items:center; font-size: 6rem; background: linear-gradient(180deg, rgba(127,127,127,.04), rgba(127,127,127,.02));
+    cursor: pointer; user-select: none; box-shadow: var(--shadow);
+  }
+  .animalBtn:active{ transform: scale(.98) }
+  .animalHint{ font-size:.9rem; color:var(--duo-muted); margin-top:6px }
+
+  /* Grammar Panel (in-lesson) */
+  .gpanel{ position: fixed; right: 0; top: 64px; bottom: 0; width: 420px; max-width: 92vw; background: var(--panel); border-left:1px solid var(--border); box-shadow: -10px 0 30px rgba(0,0,0,.08); transform: translateX(105%); transition: transform .18s ease; z-index: 8; display:grid; grid-template-rows:auto 1fr auto }
+  .gpanel.open{ transform: translateX(0); }
+  .gph{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:12px; border-bottom:1px solid var(--border); }
+  .gpb{ padding:12px; overflow:auto }
+  .gpf{ padding:10px 12px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; justify-content:space-between; }
+  .gptitle{ font-weight:900 }
+  .small{ font-size:.85rem; color:var(--duo-muted) }
+  .tipbox{ background:#fff7e6; border:1px solid #ffe0a3; border-radius:10px; padding:10px; }
+  table.tbl{ width:100%; border-collapse:collapse; }
+  table.tbl th,table.tbl td{ border:1px solid var(--border); padding:6px 8px; text-align:left }
+  table.tbl th{ background:#f3f7fb }
+
+  /* Grammar HUB (full view) */
+  .grid-cards{ display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; }
+  @media (max-width:900px){ .grid-cards{ grid-template-columns: repeat(2, 1fr) } }
+  @media (max-width:620px){ .grid-cards{ grid-template-columns: 1fr } }
+  .card{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; display:grid; gap:10px; }
+  .card .title{ font-weight:900; display:flex; align-items:center; gap:8px }
+  .card .muted{ line-height:1.4 }
+  .searchbar{ display:flex; gap:8px; margin:10px 0 }
+  .searchbar input{ flex:1; padding:10px 12px; border:1px solid var(--border); border-radius:10px; font:inherit }
+
+  /* Library */
+  .deck-list{ display:grid; gap:8px; max-height:60vh; overflow:auto; }
+  .deck-item{ display:grid; grid-template-columns: 1fr auto auto; gap:8px; align-items:center; padding:10px; border:1px solid var(--border); border-radius:12px; }
+  .badge{ font-size:.8rem; border:1px solid var(--border); padding:3px 8px; border-radius:999px; color:var(--duo-muted) }
+  footer{ padding:24px; color:var(--duo-muted); text-align:center }
+
+  /* Mini toast */
+  .toast{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#111; color:#fff; padding:10px 14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.3); opacity:0; transition:opacity .2s, transform .2s; z-index:20; }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(-6px); }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo"><div class="logo-badge" aria-hidden="true"></div> UAlingo <span class="badge">Grammar Boost</span></div>
+    <div class="tabbar">
+      <button id="tabHome" class="tab active">Learn</button>
+      <button id="tabPractice" class="tab">Practice</button>
+      <button id="tabGrammar" class="tab">Grammar</button>
+      <button id="tabLibrary" class="tab">Library</button>
+    </div>
+    <div class="stats">
+      <div class="pill heart"><span>❤️</span><span id="tbHearts" style="margin-left:6px">5</span></div>
+      <div class="pill xp"><span>⭐</span><span id="tbXP" style="margin-left:6px">0</span></div>
+      <div class="pill streak"><span>🔥</span><span id="tbStreak" style="margin-left:6px">0</span></div>
+      <button id="btnStartNext" class="btn primary">Start Next Lesson</button>
+    </div>
+  </div>
+
+  <main>
+    <!-- HOME VIEW -->
+    <section id="home" class="view active">
+      <div class="home-hero">
+        <div class="start-card">
+          <div class="icon">🚀</div>
+          <div>
+            <div id="startSkillLine"><strong>Start here:</strong> Basics 1</div>
+            <div class="muted">Tap <em>Start Next Lesson</em> or click any unlocked skill node below.</div>
+          </div>
+          <div><button id="heroStart" class="btn primary">Start</button></div>
+        </div>
+        <div class="goal">
+          <div class="ring" id="dailyRing">0</div>
+          <div>
+            <div><strong>Daily Goal:</strong> <span id="dailyGoal">10</span> XP</div>
+            <div class="mini">Earn XP by completing lessons. Streak continues each day you hit the goal.</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="path" class="path-grid"></div>
+    </section>
+
+    <!-- PRACTICE VIEW -->
+    <section id="practice" class="view">
+      <h2 style="margin:0 0 10px 0">Quick Practice</h2>
+      <div class="grid-cards">
+        <div class="card">
+          <div class="title">🍼 Toddler Mode</div>
+          <div class="muted">Caregiver phrases, simple commands, routines, toys & body. Audio on; 10 tasks.</div>
+          <div style="display:flex; gap:8px; align-items:center">
+            <button id="btnToddler" class="btn primary">Start Toddler Practice</button>
+            <span class="badge">hearts: 5</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="title">🔤 Vocab Drill</div>
+          <div class="muted">Core words: greetings, questions, numbers, colors, family, travel.</div>
+          <button id="btnVocab" class="btn blue">Start Vocab Drill</button>
+        </div>
+        <div class="card">
+          <div class="title">🎧 Audio Drill</div>
+          <div class="muted">Listen & choose: Ukrainian → English with speech.</div>
+          <button id="btnAudio" class="btn">Start Audio Drill</button>
+        </div>
+        <div class="card">
+          <div class="title">📖 EN→UK (MC)</div>
+          <div class="muted">English prompt with multiple‑choice Ukrainian answers. No typing.</div>
+          <button id="btnReading" class="btn">Start EN→UK MC</button>
+        </div>
+        <div class="card">
+          <div class="title">📘 Grammar Review</div>
+          <div class="muted">Cases, present & past tense, motion vs. location, genitive after negation.</div>
+          <button id="btnGrammar" class="btn">Start Grammar Review</button>
+        </div>
+        <div class="card">
+          <div class="title">🎲 Mixed Review</div>
+          <div class="muted">A bit of everything from all unlocked skills. MC + Word‑bank only.</div>
+          <button id="btnMixed" class="btn">Start Mixed Review</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- GRAMMAR HUB VIEW -->
+    <section id="grammar" class="view">
+      <h2 style="margin:0">Grammar Hub</h2>
+      <p class="muted" style="margin-top:6px">Browse clear, bite‑size explanations. Open during lessons via the <strong>🧠 Grammar</strong> button.</p>
+      <div class="searchbar">
+        <input id="gramSearch" type="search" placeholder="Search grammar (e.g., 'accusative', 'present', 'imperatives')">
+        <button id="gramClear" class="btn ghost">Clear</button>
+      </div>
+      <div id="grammarList" class="grid-cards"></div>
+    </section>
+
+    <!-- LIBRARY VIEW -->
+    <section id="library" class="view">
+      <h2 style="margin:0">Deck Library</h2>
+      <div class="searchbar">
+        <input id="libSearch" type="search" placeholder="Search decks (e.g., 'animals', 'instrumental', 'дім', 'numbers')…" />
+        <button id="libClear" class="btn ghost">Clear</button>
+      </div>
+      <div id="deckList" class="deck-list"></div>
+    </section>
+
+    <!-- LESSON VIEW -->
+    <section id="lesson" class="view">
+      <div class="lesson-wrap">
+        <div class="lesson-top">
+          <div id="lessonTitle" class="muted">Skill</div>
+          <div class="segments" id="segments"></div>
+          <div class="hearts" id="hearts"></div>
+        </div>
+
+        <div class="task">
+          <div class="prompt">
+            <div id="promptLabel"></div>
+            <button id="speakBtn" class="speak">🔊</button>
+            <span class="mini">/</span>
+            <button id="btnOpenGrammar" class="btn ghost">🧠 Grammar</button>
+          </div>
+          <div id="subtitle" class="muted"></div>
+
+          <!-- Media placeholder (for animal pictures etc.) -->
+          <div id="mediaArea" class="mediaArea"></div>
+
+          <div id="mcWrap" class="mc-grid"></div>
+          <div id="wbWrap" style="display:none">
+            <div class="wb-answer" id="wbAnswer"></div>
+            <div class="wb-bank" id="wbBank"></div>
+          </div>
+
+          <div id="feedback" class="feedback" style="display:none"></div>
+
+          <div class="action-bar">
+            <div style="flex:1"></div>
+            <button id="btnIDK" class="btn">I don't know</button>
+            <button id="btnCheck" class="btn primary" disabled>Check</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SUMMARY VIEW -->
+    <section id="summary" class="view">
+      <div class="summary">
+        <div class="xp-burst">+<span id="sumXP">10</span> XP</div>
+        <div id="sumMsg">Lesson complete!</div>
+        <div class="grid2" style="width:100%">
+          <div class="note"><strong>Correct:</strong> <span id="sumCorrect">0</span>/<span id="sumTotal">0</span></div>
+          <div class="note"><strong>Hearts left:</strong> <span id="sumHearts">0</span></div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <button id="btnNextSkill" class="btn blue">Next Skill</button>
+          <button id="btnRedo" class="btn">Redo Lesson</button>
+          <button id="btnTips" class="btn ghost">Tips</button>
+          <button id="btnToHome" class="btn">Home</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- TIPS VIEW -->
+    <section id="tips" class="view">
+      <div class="tips">
+        <h3 id="tipsTitle">Tips</h3>
+        <div id="tipsBody"></div>
+        <div style="margin-top:12px"><button id="btnBackFromTips" class="btn">Back</button></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- In-lesson Grammar Side Panel -->
+  <aside id="gpanel" class="gpanel" aria-hidden="true">
+    <div class="gph">
+      <div class="gptitle" id="gptitle">Grammar</div>
+      <div class="small">Press <strong>G</strong> to toggle</div>
+      <div>
+        <button id="gpClose" class="btn">Close</button>
+      </div>
+    </div>
+    <div id="gpBody" class="gpb"></div>
+    <div class="gpf">
+      <div class="small">Need more? Open the <strong>Grammar Hub</strong>.</div>
+      <div>
+        <button id="gpPractice" class="btn blue">Practice this</button>
+        <button id="gpOpenHub" class="btn ghost">Open Hub</button>
+      </div>
+    </div>
+  </aside>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <footer>
+    Offline, privacy‑friendly course. Voices, streak, and hearts are stored in your browser.
+  </footer>
+
+<script>
+/* ========================
+   UTILITIES
+   ======================== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'), 1400); }
+function todayKey(){ const d = new Date(); return d.toISOString().slice(0,10); }
+function normalizeText(s){
+  try{
+    let t = (s ?? "").toString().trim().toLowerCase().replace(/\\u2019|\\u02bc/g,"'");
+    if(typeof t.normalize === "function"){ t = t.normalize("NFC"); }
+    return t.replace(/\\s+/g," ");
+  }catch(e){ try{ return (s ?? "").toString().toLowerCase(); }catch(_){ return ""; } }
+}
+function sameText(a,b){ return normalizeText(a) === normalizeText(b); }
+function primaryEn(s){ return (s||"").split('/')[0].split('(')[0].trim(); }
+function shuffle(a){
+  a=[...a];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    const tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+  }
+  return a;
+}
+function tokeniseEN(s){ return primaryEn(s).replace(/[.,!?;:()]/g,'').split(/\\s+/).filter(Boolean); }
+function primeTTS(){
+  if(!('speechSynthesis' in window)) return;
+  function pick(){
+    try{
+      const vs = speechSynthesis.getVoices() || [];
+      if(vs.length){
+        window.__VOICE_UK = vs.find(v => (v.lang||"").toLowerCase().startsWith('uk')) || null;
+        window.__voicesReady = true;
+      }
+    }catch(e){}
+  }
+  try{ pick(); }catch(e){}
+  try{ speechSynthesis.onvoiceschanged = pick; }catch(e){}
+}
+let __voicesReady = false; let __VOICE_UK = null;
+function getSpeakText(t){
+  try{
+    if(!t) return "";
+    if(t.speak) return t.speak;
+    if(t.kind==='mcg' || t.kind==='wb') return t.prompt || "";
+    if(t.direction==='en-uk') return (typeof t.answer === 'string' ? t.answer : (t.prompt||""));
+    return t.prompt || t.answer || "";
+  }catch(e){ return ""; }
+}
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const u = new SpeechSynthesisUtterance(text);
+  const v = __VOICE_UK || (speechSynthesis.getVoices().find(v => (v.lang||"").toLowerCase().startsWith('uk')) || null);
+  if(v) u.voice = v;
+  u.lang = (v && v.lang) || "uk-UA";
+  u.rate = 1;
+  try{
+    if(!__voicesReady && (speechSynthesis.getVoices()||[]).length===0){ setTimeout(()=>speechSynthesis.speak(u), 180); }
+    else{ speechSynthesis.speak(u); }
+  }catch(e){}
+}
+function beep(ok=true){ try{ const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o = ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.value= ok? 880: 220; g.gain.value=.0001; o.connect(g); g.connect(ctx.destination); o.start(); const t=ctx.currentTime; g.gain.exponentialRampToValueAtTime(.15, t+.02); g.gain.exponentialRampToValueAtTime(.00001, t+.25); o.stop(t+.26); }catch(e){} }
+const deckByKey = k => BUILTIN_DECKS[k];
+
+/* ========================
+   STATE
+   ======================== */
+const LS_KEYS = { profile: "ua_duo_profile", progress: "ua_duo_progress" };
+const profile = loadProfile(); const progress = loadProgress();
+let CURRENT = { skillId: null, hearts: 5, stepsTotal: 10, stepsDone: 0, correct: 0, wrong: 0, tasks: [], idx: 0, modeOverride: null, quickDeckKeys: null, quickName: null, results: [] };
+function loadProfile(){
+  try{ const p = JSON.parse(localStorage.getItem(LS_KEYS.profile)||"null"); if(p) return p; }catch(e){}
+  const p = { xp:0, streak:0, lastDay:null, dailyGoal:10, xpToday:0, dayKey: todayKey(), autoExplain:false };
+  localStorage.setItem(LS_KEYS.profile, JSON.stringify(p)); return p;
+}
+function saveProfile(){ localStorage.setItem(LS_KEYS.profile, JSON.stringify(profile)); }
+function refreshDaily(){
+  const key = todayKey();
+  if(profile.dayKey !== key){
+    const prev = new Date(profile.dayKey||key); const today = new Date(key);
+    const diff = (today - prev)/(1000*60*60*24);
+    if(profile.xpToday >= profile.dailyGoal && diff <= 2){ profile.streak = (profile.streak||0)+1; }
+    else if(profile.dayKey){ profile.streak = 0; }
+    profile.xpToday = 0; profile.dayKey = key; saveProfile();
+  }
+}
+function loadProgress(){ try{ return JSON.parse(localStorage.getItem(LS_KEYS.progress)||"{}") }catch(e){ return {} } }
+function saveProgress(){ localStorage.setItem(LS_KEYS.progress, JSON.stringify(progress)); }
+function skillLevel(id){ return progress[id]?.level || 0; }
+function addXP(amount){ profile.xp += amount; profile.xpToday += amount; saveProfile(); renderTopbar(); renderHomeHero(); }
+function completeSkill(id){ const lvl = skillLevel(id); progress[id] = { level: Math.min(lvl+1, 3) }; saveProgress(); }
+
+/* ========================
+   DATA — Grammar Topics, Decks, Skills
+   ======================== */
+const GRAMMAR_TOPICS = {
+  translation_basics: {
+    title: "Translation Basics (UK⇄EN)",
+    decks: null,
+    html: `
+      <div class="tipbox"><strong>No articles in Ukrainian.</strong> Ukrainian has no “a/an/the”. Don't add them when translating to UK; add them freely in English.</div>
+      <h4>Word order</h4>
+      <p>Default is SVO (<em>Я люблю каву</em> = I love coffee), but order is flexible. Focus on meaning words first.</p>
+      <h4>Politeness</h4>
+      <p><strong>будь ласка</strong> covers “please” and “you're welcome”.</p>
+      <h4>Strategy for Word‑Bank</h4>
+      <ul><li>Tap <em>content</em> words first (nouns, verbs), then add function words.</li>
+      <li>Ignore capitalization and punctuation—those don't affect correctness.</li></ul>`
+  },
+  imperatives: {
+    title: "Imperatives (Commands)",
+    decks: ["grammar_imperatives","kid_commands"],
+    html: `
+      <p>Use <strong>2sg imperative</strong> for gentle commands to a child: <em>Сідай</em> (sit), <em>Йди сюди</em> (come here).
+      Immediate single action often uses the perfective or short form: <em>Сядь</em> (sit once).</p>
+      <table class="tbl"><tr><th>Verb</th><th>2sg</th><th>Example</th></tr>
+      <tr><td>мити (wash)</td><td>мий</td><td><em>Мий руки</em> — Wash (your) hands</td></tr>
+      <tr><td>відкрити (open)</td><td>відкрий</td><td><em>Відкрий ротик</em> — Open your mouth</td></tr></table>
+      <div class="tipbox">Polite tone: add <strong>будь ласка</strong>.</div>`
+  },
+  possessives: {
+    title: "Possessive Pronouns",
+    decks: ["grammar_possessives"],
+    html: `
+      <p>Possessives agree with the <em>gender and number of the noun</em> they modify.</p>
+      <table class="tbl">
+        <tr><th>English</th><th>Masc</th><th>Fem</th><th>Neut</th><th>Plural</th></tr>
+        <tr><td>my</td><td>мій</td><td>моя</td><td>моє</td><td>мої</td></tr>
+        <tr><td>your (sg.)</td><td>твій</td><td>твоя</td><td>твоє</td><td>твої</td></tr>
+        <tr><td>our</td><td>наш</td><td>наша</td><td>наше</td><td>наші</td></tr>
+      </table>
+      <p>Example: <em>твоя пляшечка</em> (your bottle, fem.).</p>`
+  },
+  present: {
+    title: "Present Tense — Key Endings",
+    decks: ["grammar_present"],
+    html: `
+      <table class="tbl">
+        <tr><th>Person</th><th>Ending (typical)</th><th>Example (читати)</th></tr>
+        <tr><td>я</td><td>-ю / -у</td><td>я читаю</td></tr>
+        <tr><td>ти</td><td>-єш</td><td>ти читаєш</td></tr>
+        <tr><td>він/вона/воно</td><td>-є</td><td>вона читає</td></tr>
+        <tr><td>ми</td><td>-ємо</td><td>ми читаємо</td></tr>
+        <tr><td>ви</td><td>-єте</td><td>ви читаєте</td></tr>
+        <tr><td>вони</td><td>-ють / -ать</td><td>вони читають</td></tr>
+      </table>
+      <div class="tipbox"><strong>Йти → йду/йдеш/йде…</strong> Some verbs are irregular; learn the pattern.</div>`
+  },
+  past: {
+    title: "Past Tense — Gender & Number",
+    decks: ["grammar_past"],
+    html: `
+      <p>Past agrees with subject:</p>
+      <table class="tbl">
+        <tr><th>Masculine</th><th>Feminine</th><th>Neuter</th><th>Plural</th></tr>
+        <tr><td>-в (<em>робив</em>)</td><td>-ла (<em>робила</em>)</td><td>-ло (<em>робило</em>)</td><td>-ли (<em>робили</em>)</td></tr>
+      </table>`
+  },
+  cases_overview: {
+    title: "Cases — Overview",
+    decks: ["cases_basic"],
+    html: `
+      <p>Cases change noun endings to mark function:</p>
+      <ul>
+        <li><strong>Nominative</strong> — subject: <em>кіт</em> (the cat).</li>
+        <li><strong>Accusative</strong> — direct object: <em>бачу кота</em> (I see a cat).</li>
+        <li><strong>Genitive</strong> — of/absence: <em>немає часу</em> (no time).</li>
+        <li><strong>Dative</strong> — to/for: <em>другу</em> (to a friend).</li>
+        <li><strong>Instrumental</strong> — with/by: <em>олівцем</em> (with a pencil).</li>
+        <li><strong>Locative</strong> — in/at: <em>у Києві</em> (in Kyiv).</li>
+        <li><strong>Vocative</strong> — addressing: <em>Друзі!</em> (Friends!).</li>
+      </ul>`
+  },
+  instrumental: {
+    title: "Instrumental Case (чим?)",
+    decks: ["cases_instrumental"],
+    html: `
+      <p>Use with tools, companionship, professions after <em>бути/стати</em>, and after preposition <strong>з</strong>:</p>
+      <ul><li><em>писати олівцем</em> — write with a pencil</li>
+      <li><em>з другом</em> — with a friend</li>
+      <li><em>він став учителем</em> — he became a teacher</li></ul>`
+  },
+  locative: {
+    title: "Locative Case (де?)",
+    decks: ["cases_locative"],
+    html: `<p>Use for location after <strong>в/у</strong>, <strong>на</strong>:</p>
+      <ul><li><em>у школі</em> (at school)</li><li><em>на роботі</em> (at work)</li><li><em>у Києві</em> (in Kyiv)</li></ul>`
+  },
+  prepositions_motion: {
+    title: "Prepositions: Motion vs. Location",
+    decks: ["grammar_prepositions"],
+    html: `<p><strong>Location</strong> → Locative: <em>у коробці</em>, <em>на столі</em>.<br>
+           <strong>Motion (into/onto)</strong> → Accusative: <em>в коробку</em>, <em>на стіл</em>.<br>
+           <strong>до</strong> + Genitive for “to (a place)”: <em>до парку</em>.</p>`
+  },
+  genitive_negation: {
+    title: "Genitive after Negation",
+    decks: ["grammar_genitive_neg"],
+    html: `<p>After <strong>немає</strong> / <strong>не було</strong>: use Genitive.</p>
+           <ul><li><em>немає води</em> — there is no water</li><li><em>не було людей</em> — there were no people</li></ul>`
+  },
+  nominative: { title:"Nominative — Who/What? (Хто? Що?)", decks:null, html:`
+    <p><strong>Use:</strong> subject & naming.</p>
+    <ul><li><em>Київ — столиця.</em></li><li><em>Він лікар.</em></li></ul>
+    <div class="tipbox">Present copula often omitted.</div>` },
+  genitive: { title:"Genitive — Of/From/Without", decks:null, html:`
+    <p>Possession, quantity, from/near, after negation.</p>` },
+  dative: { title:"Dative — To/For", decks:null, html:`
+    <p>Indirect object; experiencer: <em>мені холодно</em>.</p>` },
+  accusative: { title:"Accusative — Object/Motion", decks: ["cases_accusative"], html:`
+    <p>Direct object; into/onto with motion.</p>` },
+  vocative: { title:"Vocative — Addressing", decks:null, html:`<p>Мамо! Андрію!</p>` },
+  future: { title:"Future — Simple & Compound", decks:["grammar_future"], html:`<p>буду + INF; perfective simple future.</p>` },
+  aspect: { title:"Aspect — Perf vs. Imperf", decks:["grammar_aspect"], html:`<p>Process vs. completed whole.</p>` },
+  conjugation_breakdown: { title:"Conjugation — Patterns", decks:["grammar_conjugation"], html:`<p>1st vs 2nd endings.</p>` },
+  agreement: { title:"Agreement", decks:["grammar_agreement"], html:`<p>Adj/pronouns & past agree with noun/speaker.</p>` },
+  gender_basics: { title:"Gender of Nouns", decks:["grammar_gender"], html:`<p>m/f/n typical endings.</p>` },
+  questions_answers: { title:"Questions & Answers", decks:["grammar_questions"], html:`<p>хто, що, де, коли, чи…</p>` },
+  negation_full: { title:"Negation", decks:["grammar_negation"], html:`<p>не + verb; нікого/нічого; немає + Gen.</p>` },
+  reflexive_sya: { title:"Reflexive ‑ся/‑сь", decks:["grammar_reflexive"], html:`<p>миюся, зустрічаємося, називатися.</p>` },
+  motion_verbs: { title:"Motion — йти/ходити, їхати/їздити", decks:["grammar_motion"], html:`<p>Directional vs habitual.</p>` },
+  word_order: { title:"Word Order & Focus", decks:["grammar_word_order"], html:`<p>Neutral SVO; focus late.</p>` },
+  copula_je: { title:"Copula — є / це / —", decks:["grammar_copula"], html:`<p>є for existence; це for ID; — in present.</p>` },
+  pronouns_cases: { title:"Personal Pronouns by Case", decks:["grammar_pronouns_cases"], html:`<p>Forms table.</p>` },
+  comparison: { title:"Comparatives & Superlatives", decks:["grammar_comparison"], html:`<p>-іш-, най-; ніж.</p>` }
+};
+
+const BUILTIN_DECKS = {};
+Object.assign(BUILTIN_DECKS, {
+  greetings: { name: "Greetings", type: "vocab", items: [
+    {uk:"Привіт", en:"Hi"}, {uk:"Доброго ранку", en:"Good morning"}, {uk:"Добрий день", en:"Good afternoon / Hello"},
+    {uk:"Добрий вечір", en:"Good evening"}, {uk:"До побачення", en:"Goodbye"}, {uk:"Бувай", en:"Bye (informal)"},
+    {uk:"Будь ласка", en:"Please / You're welcome"}, {uk:"Дякую", en:"Thank you"}, {uk:"Перепрошую", en:"Excuse me / Sorry"},
+    {uk:"Як справи?", en:"How are you?"}, {uk:"Мене звати…", en:"My name is…"}, {uk:"Приємно познайомитися", en:"Nice to meet you"}, {uk:"До зустрічі", en:"See you"}
+  ]},
+  basics_core: { name: "Basics — Core phrases", type: "vocab", items: [
+    {uk:"Так", en:"Yes"}, {uk:"Ні", en:"No"}, {uk:"Добре", en:"Good / OK"}, {uk:"Погано", en:"Bad"}, {uk:"Чудово", en:"Great"},
+    {uk:"Можна?", en:"May I? / Is it allowed?"}, {uk:"Не можна", en:"Not allowed / Don't"}, {uk:"Де…?", en:"Where is…?"}, {uk:"Скільки це коштує?", en:"How much is this?"},
+    {uk:"Я не розумію", en:"I don't understand"}, {uk:"Повторіть, будь ласка", en:"Repeat, please"}, {uk:"Повільніше, будь ласка", en:"Slower, please"},
+    {uk:"Що це?", en:"What is this?"}, {uk:"Коли…?", en:"When…?"}, {uk:"Чому…?", en:"Why…?"}, {uk:"Як…?", en:"How…?"}, {uk:"Хто…?", en:"Who…?"}, {uk:"Я з України", en:"I am from Ukraine"}
+  ]},
+  basics_pronouns_q: { name:"Basics — Pronouns & Question words", type:"vocab", items: [
+    {uk:"я", en:"I"}, {uk:"ти", en:"you (singular)"}, {uk:"він", en:"he"}, {uk:"вона", en:"she"}, {uk:"воно", en:"it"},
+    {uk:"ми", en:"we"}, {uk:"ви", en:"you (plural/formal)"}, {uk:"вони", en:"they"}, {uk:"цей / ця / це / ці", en:"this (m/f/n/pl)"},
+    {uk:"той / та / те / ті", en:"that (m/f/n/pl)"}, {uk:"хто", en:"who"}, {uk:"що", en:"what"}, {uk:"де", en:"where"}, {uk:"коли", en:"when"},
+    {uk:"чому", en:"why"}, {uk:"як", en:"how"}, {uk:"скільки", en:"how many/how much"}, {uk:"який / яка / яке / які", en:"which; what kind (m/f/n/pl)"}
+  ]},
+  basics_adjectives: { name:"Basics — Common adjectives", type:"vocab", items: [
+    {uk:"великий / маленький", en:"big / small"}, {uk:"гарячий / холодний", en:"hot / cold"}, {uk:"чистий / брудний", en:"clean / dirty"},
+    {uk:"мокрий / сухий", en:"wet / dry"}, {uk:"новий / старий", en:"new / old"}, {uk:"гарний / поганий", en:"good / bad"},
+    {uk:"щасливий / сумний", en:"happy / sad"}, {uk:"втомлений", en:"tired"}, {uk:"голодний", en:"hungry"}, {uk:"спраглий", en:"thirsty"}, {uk:"швидкий / повільний", en:"fast / slow"},
+    {uk:"безпечний / небезпечний", en:"safe / dangerous"}
+  ]},
+  alphabet_ua: { name:"Alphabet — Ukrainian letters", type:"vocab", items: [
+    {uk:"А а", en:"A (ah)"}, {uk:"Б б", en:"B (be)"}, {uk:"В в", en:"V (ve)"}, {uk:"Г г", en:"H (he)"}, {uk:"Ґ ґ", en:"G (ge)"},
+    {uk:"Д д", en:"D (de)"}, {uk:"Е е", en:"E (e)"}, {uk:"Є є", en:"Ye (ye)"}, {uk:"Ж ж", en:"Zh (zhe)"}, {uk:"З з", en:"Z (ze)"},
+    {uk:"И и", en:"Y (y)"}, {uk:"І і", en:"I (i)"}, {uk:"Ї ї", en:"Yi (yi)"}, {uk:"Й й", en:"Y (yot)"}, {uk:"К к", en:"K (ka)"},
+    {uk:"Л л", en:"L (el)"}, {uk:"М м", en:"M (em)"}, {uk:"Н н", en:"N (en)"}, {uk:"О о", en:"O (o)"}, {uk:"П п", en:"P (pe)"},
+    {uk:"Р р", en:"R (er)"}, {uk:"С с", en:"S (es)"}, {uk:"Т т", en:"T (te)"}, {uk:"У у", en:"U (u)"}, {uk:"Ф ф", en:"F (ef)"},
+    {uk:"Х х", en:"Kh (kha)"}, {uk:"Ц ц", en:"Ts (tse)"}, {uk:"Ч ч", en:"Ch (che)"}, {uk:"Ш ш", en:"Sh (sha)"}, {uk:"Щ щ", en:"Shch (shcha)"},
+    {uk:"Ь ь", en:"Soft sign"}, {uk:"Ю ю", en:"Yu (yu)"}, {uk:"Я я", en:"Ya (ya)"}
+  ]},
+  phrases: { name: "Everyday phrases", type: "vocab", items: [
+    {uk:"Я не розумію", en:"I don't understand"}, {uk:"Ви говорите англійською?", en:"Do you speak English?"},
+    {uk:"Де туалет?", en:"Where is the bathroom?"}, {uk:"Скільки це коштує?", en:"How much is this?"},
+    {uk:"Допоможіть, будь ласка", en:"Help, please"}, {uk:"Мені подобається", en:"I like it"},
+    {uk:"Мені потрібно…", en:"I need…"}, {uk:"Звідки ви?", en:"Where are you from?"},
+    {uk:"Смачного!", en:"Bon appétit!"}, {uk:"Удачі!", en:"Good luck!"}
+  ]},
+  numbers: { name: "Numbers 1–10", type:"vocab", items: [
+    {uk:"один", en:"one"}, {uk:"два", en:"two"}, {uk:"три", en:"three"}, {uk:"чотири", en:"four"}, {uk:"п'ять", en:"five"},
+    {uk:"шість", en:"six"}, {uk:"сім", en:"seven"}, {uk:"вісім", en:"eight"}, {uk:"дев'ять", en:"nine"}, {uk:"десять", en:"ten"}
+  ]},
+  numbers_11_20: { name:"Numbers 11–20", type:"vocab", items: [
+    {uk:"одинадцять", en:"eleven"}, {uk:"дванадцять", en:"twelve"}, {uk:"тринадцять", en:"thirteen"}, {uk:"чотирнадцять", en:"fourteen"},
+    {uk:"п'ятнадцять", en:"fifteen"}, {uk:"шістнадцять", en:"sixteen"}, {uk:"сімнадцять", en:"seventeen"}, {uk:"вісімнадцять", en:"eighteen"},
+    {uk:"дев'ятнадцять", en:"nineteen"}, {uk:"двадцять", en:"twenty"}
+  ]},
+  colors: { name:"Colors", type:"vocab", items: [
+    {uk:"червоний", en:"red"}, {uk:"синій", en:"blue"}, {uk:"зелений", en:"green"}, {uk:"жовтий", en:"yellow"},
+    {uk:"чорний", en:"black"}, {uk:"білий", en:"white"}, {uk:"фіолетовий", en:"purple"}, {uk:"помаранчевий", en:"orange"},
+    {uk:"коричневий", en:"brown"}, {uk:"сірий", en:"gray"}
+  ]},
+  shapes: { name:"Shapes", type:"vocab", items: [
+    {uk:"коло", en:"circle"},{uk:"квадрат", en:"square"},{uk:"трикутник", en:"triangle"},
+    {uk:"прямокутник", en:"rectangle"},{uk:"зірка", en:"star"},{uk:"серце", en:"heart"}
+  ]},
+  weather: { name:"Weather & Nature", type:"vocab", items: [
+    {uk:"сонячно", en:"sunny"}, {uk:"хмарно", en:"cloudy"}, {uk:"дощ", en:"rain"}, {uk:"сніг", en:"snow"},
+    {uk:"вітер", en:"wind"}, {uk:"тепло", en:"warm"}, {uk:"холодно", en:"cold"}, {uk:"жарко", en:"hot"}, {uk:"слизько", en:"slippery"},
+    {uk:"грім і блискавка", en:"thunder and lightning"}
+  ]},
+  seasons_months: { name:"Seasons & Months", type:"vocab", items: [
+    {uk:"весна", en:"spring"},{uk:"літо", en:"summer"},{uk:"осінь", en:"autumn"},{uk:"зима", en:"winter"},
+    {uk:"січень", en:"January"},{uk:"лютий", en:"February"},{uk:"березень", en:"March"},{uk:"квітень", en:"April"},
+    {uk:"травень", en:"May"},{uk:"червень", en:"June"},{uk:"липень", en:"July"},{uk:"серпень", en:"August"},
+    {uk:"вересень", en:"September"},{uk:"жовтень", en:"October"},{uk:"листопад", en:"November"},{uk:"грудень", en:"December"}
+  ]},
+  time_day: { name:"Time of day & schedule", type:"vocab", items: [
+    {uk:"ранок", en:"morning"}, {uk:"день", en:"day/afternoon"}, {uk:"вечір", en:"evening"}, {uk:"ніч", en:"night"},
+    {uk:"зараз", en:"now"}, {uk:"пізніше", en:"later"}, {uk:"завтра", en:"tomorrow"}, {uk:"вчора", en:"yesterday"},
+    {uk:"негайно", en:"right now"}, {uk:"скоро", en:"soon"}, {uk:"потім", en:"afterwards"}
+  ]},
+  rooms_household: { name:"Rooms & household", type:"vocab", items: [
+    {uk:"кухня", en:"kitchen"},{uk:"ванна", en:"bathroom"},{uk:"спальня", en:"bedroom"},
+    {uk:"вітальня", en:"living room"},{uk:"ліжко", en:"bed"},{uk:"дитяче ліжечко", en:"crib"},
+    {uk:"стіл", en:"table"},{uk:"стілець", en:"chair"},{uk:"шафа", en:"wardrobe"},
+    {uk:"візочок", en:"stroller"},{uk:"коляска", en:"pram"}
+  ]},
+  clothes_kid: { name:"Clothes (kid)", type:"vocab", items: [
+    {uk:"боді", en:"onesie"}, {uk:"сорочечка", en:"shirt (little)"},{uk:"штанці", en:"pants (little)"},
+    {uk:"шкарпетки", en:"socks"},{uk:"черевики", en:"shoes"},{uk:"кросівки", en:"sneakers"},
+    {uk:"шапка", en:"hat"},{uk:"куртка", en:"jacket"},{uk:"рукавиці", en:"mittens"},
+    {uk:"пелюшка", en:"swaddle"},{uk:"підгузок/памперс", en:"diaper"}
+  ]},
+  toys_objects: { name:"Toys & objects", type:"vocab", items: [
+    {uk:"іграшка", en:"toy"},{uk:"м'яч", en:"ball"},{uk:"лялька", en:"doll"},
+    {uk:"машинка", en:"toy car"},{uk:"книжка", en:"book"},{uk:"кубики", en:"blocks"},
+    {uk:"пірамідка", en:"stacking toy"},{uk:"пазл", en:"puzzle"},{uk:"олівець", en:"pencil"},
+    {uk:"фломастер", en:"marker"},{uk:"папір", en:"paper"},{uk:"пляшечка", en:"bottle"},
+    {uk:"пустушка / соска", en:"pacifier"},{uk:"ковдра", en:"blanket"},{uk:"подушка", en:"pillow"}
+  ]},
+  travel: { name:"Travel basics", type:"vocab", items: [
+    {uk:"залізничний вокзал", en:"train station"}, {uk:"аеропорт", en:"airport"}, {uk:"квиток", en:"ticket"},
+    {uk:"паспорт", en:"passport"}, {uk:"готель", en:"hotel"}, {uk:"бронювання", en:"reservation"},
+    {uk:"вихід", en:"exit"}, {uk:"вхід", en:"entrance"}, {uk:"праворуч", en:"to the right"}, {uk:"ліворуч", en:"to the left"},
+    {uk:"прямо", en:"straight ahead"}, {uk:"де зупинка автобуса?", en:"where is the bus stop?"}, {uk:"скільки часу?", en:"what time is it?"},
+    {uk:"чи можна карткою?", en:"can I pay by card?"}, {uk:"я загубився / загубилася", en:"I am lost (m/f)"}
+  ]},
+  family: { name:"Family & people", type:"vocab", items: [
+    {uk:"родина", en:"family"}, {uk:"батько / тато", en:"father / dad"}, {uk:"мати / мама", en:"mother / mom"},
+    {uk:"син", en:"son"}, {uk:"дочка", en:"daughter"}, {uk:"чоловік", en:"husband"}, {uk:"дружина", en:"wife"},
+    {uk:"брат", en:"brother"}, {uk:"сестра", en:"sister"}, {uk:"дідусь", en:"grandfather"}, {uk:"бабуся", en:"grandmother"},
+    {uk:"друзі", en:"friends"}, {uk:"няня", en:"nanny"}
+  ]},
+  verbs_basic: { name:"Common verbs (inf.)", type:"vocab", items: [
+    {uk:"їсти", en:"to eat"}, {uk:"пити", en:"to drink"}, {uk:"йти", en:"to go (on foot)"}, {uk:"їхати", en:"to go (by vehicle)"},
+    {uk:"бачити", en:"to see"}, {uk:"чути", en:"to hear"}, {uk:"читати", en:"to read"}, {uk:"писати", en:"to write"}, {uk:"говорити", en:"to speak"},
+    {uk:"розуміти", en:"to understand"}, {uk:"працювати", en:"to work"}, {uk:"вчитися", en:"to study/learn"}, {uk:"спати", en:"to sleep"}, {uk:"гратися", en:"to play"}
+  ]},
+  days: { name:"Days of the week", type:"vocab", items: [
+    {uk:"понеділок", en:"Monday"}, {uk:"вівторок", en:"Tuesday"}, {uk:"середа", en:"Wednesday"},
+    {uk:"четвер", en:"Thursday"}, {uk:"п'ятниця", en:"Friday"}, {uk:"субота", en:"Saturday"}, {uk:"неділя", en:"Sunday"}
+  ]},
+  body_kids: { name:"Body parts (kid)", type:"vocab", items: [
+    {uk:"голова", en:"head"}, {uk:"очі", en:"eyes"}, {uk:"вуха", en:"ears"}, {uk:"носик", en:"little nose"},
+    {uk:"ротик", en:"little mouth"}, {uk:"ручка", en:"little hand/arm"}, {uk:"ніжка", en:"little leg/foot"},
+    {uk:"животик", en:"tummy"}, {uk:"спинка", en:"back"}, {uk:"коліна", en:"knees"}, {uk:"пальчики", en:"little fingers/toes"}
+  ]},
+  kid_phrases_caregiver: { name:"Caregiver phrases (0–2y)", type:"vocab", items: [
+    {uk:"Молодець!", en:"Well done!"},{uk:"Все гаразд", en:"It's okay"},{uk:"Не плач", en:"Don't cry"},
+    {uk:"Я поруч", en:"I'm right here"},{uk:"Обійми", en:"Hug"},{uk:"Дай поцілунок", en:"Give me a kiss"},
+    {uk:"Боляче?", en:"Does it hurt?"},{uk:"Хочеш ще?", en:"Do you want more?"},
+    {uk:"Давай разом", en:"Let's do it together"},{uk:"Почекай хвилинку", en:"Wait a moment"},
+    {uk:"Тихіше", en:"Quieter"},{uk:"Стоп", en:"Stop"},{uk:"Обережно!", en:"Careful!"},
+    {uk:"Не можна", en:"Don't / It's not allowed"},{uk:"Де носик?", en:"Where is (your) nose?"},
+    {uk:"Де вушка?", en:"Where are (your) ears?"},{uk:"Де оченята?", en:"Where are (your) little eyes?"},
+    {uk:"Дай руку", en:"Give me your hand"}
+  ]},
+  kid_commands: { name:"Commands for toddlers", type:"vocab", items: [
+    {uk:"Сідай", en:"Sit down"},{uk:"Вставай", en:"Stand up"},{uk:"Йди сюди", en:"Come here"},
+    {uk:"Дай мені", en:"Give me"},{uk:"Візьми", en:"Take it"},{uk:"Поклади", en:"Put it down"},
+    {uk:"Покажи", en:"Show me"},{uk:"Відкрий ротик", en:"Open your mouth"},{uk:"Закрий оченята", en:"Close your little eyes"},
+    {uk:"Миємо ручки", en:"We are washing hands"},{uk:"Не торкайся", en:"Don't touch"},{uk:"Не клади в рот", en:"Don't put it in your mouth"},
+    {uk:"Поділися, будь ласка", en:"Share, please"},{uk:"Повільно", en:"Slowly"},{uk:"Швидше", en:"Faster"}
+  ]},
+  kid_feeding: { name:"Feeding & eating", type:"vocab", items: [
+    {uk:"їжа", en:"food"},{uk:"каша", en:"porridge"},{uk:"банан", en:"banana"},{uk:"йогурт", en:"yogurt"},
+    {uk:"овочі", en:"vegetables"},{uk:"фрукти", en:"fruits"},{uk:"вода", en:"water"},{uk:"сік", en:"juice"},
+    {uk:"пляшечка", en:"bottle"},{uk:"суміш (для немовлят)", en:"formula"},{uk:"ложка", en:"spoon"},{uk:"тарілка", en:"plate"},
+    {uk:"Їж повільно", en:"Eat slowly"},{uk:"Жуй", en:"Chew"},{uk:"Пий водичку", en:"Drink some water"},
+    {uk:"Ще?", en:"More?"},{uk:"Досить", en:"Enough"},{uk:"Смачно?", en:"Is it tasty?"}
+  ]},
+  kid_diaper: { name:"Diapering & potty", type:"vocab", items: [
+    {uk:"підгузок / памперс", en:"diaper"},{uk:"серветки", en:"wipes"},{uk:"крем", en:"cream"},
+    {uk:"горщик", en:"potty"},{uk:"піся", en:"pee (kid)"},{uk:"кака", en:"poop (kid)"},
+    {uk:"Треба поміняти підгузок", en:"We need to change your diaper"},
+    {uk:"Підтискай ніжки", en:"Lift your legs"},{uk:"Чисто", en:"All clean"},
+    {uk:"Ти попісяв/попісяла?", en:"Did you pee? (m/f)"}
+  ]},
+  kid_sleep: { name:"Sleep & nap time", type:"vocab", items: [
+    {uk:"спатки", en:"sleepy time (kid)"},{uk:"сон", en:"sleep"},{uk:"дрімати", en:"to nap"},
+    {uk:"піжама", en:"pyjamas"},{uk:"ковдра", en:"blanket"},{uk:"Подушка", en:"pillow"},
+    {uk:"Пора спатки", en:"Time to sleep"},{uk:"Ходімо спати", en:"Let's go to sleep"},
+    {uk:"Я поруч", en:"I'm here"},{uk:"Не бійся", en:"Don't be afraid"},{uk:"Тихо", en:"Quiet"},
+    {uk:"Закрий оченята", en:"Close your little eyes"},{uk:"Люлі-люлі", en:"lullaby (soothing words)"}
+  ]},
+  kid_play: { name:"Playtime & activities", type:"vocab", items: [
+    {uk:"Гайда гратися!", en:"Let's play!"},{uk:"Давай будувати вежу", en:"Let's build a tower"},
+    {uk:"Кидай м'яч", en:"Throw the ball"},{uk:"Лови!", en:"Catch!"},{uk:"Малюй", en:"Draw"},
+    {uk:"Розфарбовуй", en:"Color (verb)"},{uk:"Читаймо книжку", en:"Let's read a book"},
+    {uk:"Співаймо", en:"Let's sing"},{uk:"Танцюймо", en:"Let's dance"},
+    {uk:"Ділися іграшками", en:"Share your toys"},{uk:"Прибери іграшки", en:"Put your toys away"}
+  ]},
+  kid_safety: { name:"Safety words", type:"vocab", items: [
+    {uk:"гаряче", en:"hot"},{uk:"холодно", en:"cold"},{uk:"боляче", en:"it hurts"},
+    {uk:"небезпечно", en:"dangerous"},{uk:"обережно", en:"careful"},{uk:"стій", en:"stop"},
+    {uk:"повільно", en:"slowly"},{uk:"не чіпай", en:"don't touch"},{uk:"не клади в рот", en:"don't put it in your mouth"},
+    {uk:"тримайся за руку", en:"hold my hand"}
+  ]},
+  kid_feelings: { name:"Feelings (kid)", type:"vocab", items: [
+    {uk:"Мені жарко", en:"I'm hot"},{uk:"Мені холодно", en:"I'm cold"},
+    {uk:"Мені страшно", en:"I'm scared"},{uk:"Мені боляче", en:"It hurts"},
+    {uk:"Мені сумно", en:"I'm sad"},{uk:"Мені весело", en:"I'm having fun"},
+    {uk:"Я втомився / втомилася", en:"I'm tired (m/f)"},{uk:"Я хочу їсти", en:"I'm hungry"},
+    {uk:"Я хочу пити", en:"I'm thirsty"}
+  ]},
+  animals_kids: { name:"Animals (kid-friendly)", type:"vocab", items: [
+    {uk:"кіт / киця", en:"cat / kitty"},{uk:"пес / собачка", en:"dog / doggy"},
+    {uk:"корова", en:"cow"},{uk:"вівця", en:"sheep"},{uk:"свиня", en:"pig"},
+    {uk:"курка / курчатко", en:"chicken / chick"},{uk:"качка / каченя", en:"duck / duckling"},
+    {uk:"кінь / лоша", en:"horse / foal"},{uk:"пташка", en:"birdie"},
+    {uk:"рибка", en:"little fish"},{uk:"ведмедик", en:"teddy bear"}
+  ]},
+  animal_sounds: { name:"Animal sounds (text)", type:"vocab", items: [
+    {uk:"няв-няв", en:"meow"},{uk:"гав-гав", en:"woof"},{uk:"му-у", en:"moo"},
+    {uk:"ко-ко-ко", en:"cluck"},{uk:"і-го-го", en:"neigh"},{uk:"хрю-хрю", en:"oink"},{uk:"бе-е", en:"baa"},{uk:"кря-кря", en:"quack"},{uk:"ква-ква", en:"ribbit"}
+  ]},
+  /* NEW: Media deck for Library (emoji + onomatopoeia; answers in Ukrainian) */
+  animal_sounds_media: { name:"Animal Sounds (with pictures)", type:"media", mode:"animal-sounds-uk", items: [
+    {animal:"cat", emoji:"🐱", uk:"няв-няв", en:"meow"},
+    {animal:"dog", emoji:"🐶", uk:"гав-гав", en:"woof"},
+    {animal:"cow", emoji:"🐮", uk:"му-у", en:"moo"},
+    {animal:"horse", emoji:"🐴", uk:"і-го-го", en:"neigh"},
+    {animal:"pig", emoji:"🐷", uk:"хрю-хрю", en:"oink"},
+    {animal:"chicken", emoji:"🐔", uk:"ко-ко-ко", en:"cluck"},
+    {animal:"sheep", emoji:"🐑", uk:"бе-е", en:"baa"},
+    {animal:"duck", emoji:"🦆", uk:"кря-кря", en:"quack"},
+    {animal:"frog", emoji:"🐸", uk:"ква-ква", en:"ribbit"}
+  ]},
+
+  /* Grammar decks (case questions) */
+  cases_basic: { name:"Grammar — Cases (basic)", type:"case", items: [
+    { sentence:"Я бачу _____ (кіт).", choices:["кіт","кота","коті","котом"], answer:1, explanation:"Accusative singular, animate masculine nouns often take -а/-я → кіт → кота." },
+    { sentence:"Я купую _____ (книжка).", choices:["книжка","книжку","книжкою","книжці"], answer:1, explanation:"Accusative singular, feminine -а → -у → книжка → книжку." },
+    { sentence:"У мене немає _____ (час).", choices:["час","часу","часом","часі"], answer:1, explanation:"Genitive after «немає» → час → часу." },
+    { sentence:"Я допомагаю _____ (друг).", choices:["друг","друга","другу","другом"], answer:2, explanation:"Dative singular answers ‘кому?’ → друг → другу." },
+    { sentence:"Вона пишається _____ (успіх).", choices:["успіх","успіхом","успіху","успіхові"], answer:1, explanation:"Instrumental after «пишатися» → успіх → успіхом." },
+    { sentence:"Ми живемо в _____ (Київ).", choices:["Київ","Києва","Києві","Києвом"], answer:2, explanation:"Locative after «в/у» (location) → Київ → Києві." },
+    { sentence:"_____ (друзі), привіт!", choices:["Друзі","Друзів","Друзями","Друзях"], answer:0, explanation:"Vocative plural often = nominative plural → друзі." },
+    { sentence:"Я йду до _____ (школа).", choices:["школа","школу","школи","школою"], answer:2, explanation:"Preposition «до» takes genitive → школа → школи." },
+    { sentence:"Я говорю з _____ (вчитель).", choices:["вчитель","вчителя","вчителю","вчителем"], answer:3, explanation:"«з/із/зі» with instrumental → вчитель → вчителем." },
+    { sentence:"Ми на _____ (урок).", choices:["урок","уроку","урокові","уроці"], answer:3, explanation:"Location with «на» frequently uses locative → уроці." },
+    { sentence:"Я люблю _____ (кава).", choices:["кава","кави","каву","кавою"], answer:2, explanation:"Direct object (accusative) → кава → каву." },
+    { sentence:"Дай _____ (сестра) книгу.", choices:["сестра","сестри","сестрі","сестрою"], answer:2, explanation:"Indirect object (dative) → сестрі." },
+    { sentence:"Ми говоримо про _____ (музика).", choices:["музика","музики","музиці","музику"], answer:3, explanation:"«про» takes accusative → музику." },
+    { sentence:"Він є _____ (студент).", choices:["студент","студента","студентом","студентові"], answer:2, explanation:"Predicate instrumental possible with «бути» → студентом." }
+  ]},
+  cases_instrumental: { name:"Grammar — Instrumental", type:"case", items: [
+    { sentence:"Він працює _____ (лікар).", choices:["лікар","лікарем","лікарю","лікаря"], answer:1, explanation:"Profession after «працювати» can use instrumental → лікарем." },
+    { sentence:"Вона пишається своїм _____ (брат).", choices:["брат","братові","братом","брата"], answer:2, explanation:"After «пишатися» use instrumental → братом." },
+    { sentence:"Ми подорожуємо з _____ (друг).", choices:["друга","другом","друзями","другові"], answer:1, explanation:"«з» + instrumental → з другом." },
+    { sentence:"Він цікавиться _____ (історія).", choices:["історією","історію","історії","історія"], answer:0, explanation:"«цікавитися» takes instrumental → історією." },
+    { sentence:"Вона пише _____ (олівець).", choices:["олівець","олівцем","олівцю","олівця"], answer:1, explanation:"Instrument used → інструментальний: олівцем." },
+    { sentence:"Ми зустрілися з _____ (директор).", choices:["директором","директора","директорові","директору"], answer:0, explanation:"«з» + instrumental → з директором." },
+    { sentence:"Він став _____ (учитель).", choices:["учителем","учителя","учителю","учитель"], answer:0, explanation:"Becoming often uses instrumental → учителем." },
+    { sentence:"Вона говорила з _____ (сусідка).", choices:["сусідкою","сусідку","сусідці","сусідка"], answer:0, explanation:"Instrumental singular feminine -ою/-ею → сусідкою." }
+  ]},
+  cases_locative: { name:"Grammar — Locative", type:"case", items: [
+    { sentence:"Вони живуть у _____ (Київ).", choices:["Києві","Києва","Київ","Києвом"], answer:0, explanation:"Location with «у/в» → у Києві." },
+    { sentence:"Ми на _____ (лекція).", choices:["лекції","лекцію","лекцією","лекцій"], answer:0, explanation:"Location with «на» → на лекції." },
+    { sentence:"Вона працює в _____ (офіс).", choices:["офісі","офісу","офісом","офісі (acc.)"], answer:0, explanation:"Where? → в офісі." },
+    { sentence:"Я в _____ (музей).", choices:["музеї","музеєм","музею","музей"], answer:0, explanation:"Location → у музеї." },
+    { sentence:"Він на _____ (стадіон).", choices:["стадіоні","стадіону","стадіоном","стадіон"], answer:0, explanation:"Location with «на» → на стадіоні." },
+    { sentence:"Ми в _____ (школа).", choices:["школі","школою","школи","школу"], answer:0, explanation:"Feminine locative -і → у школі." },
+    { sentence:"Я на _____ (робота).", choices:["роботі","роботою","роботи","роботу"], answer:0, explanation:"Locative: на роботі." },
+    { sentence:"Він у _____ (село).", choices:["селі","селу","селом","села"], answer:0, explanation:"Neuter locative -і → у селі." }
+  ]},
+
+  /* More grammar & vocab decks */
+  grammar_imperatives: { name:"Grammar — Imperatives (kid)", type:"case", items:[
+    { sentence:"_____ , будь ласка. (sit down)", choices:["Сядь","Сідай","Сидиш","Сісти"], answer:1, explanation:"«Сідай» (gentle ongoing). «Сядь» is single-action." },
+    { sentence:"_____ руки. (wash)", choices:["Мий","Мийте","Мили","Мив"], answer:0, explanation:"2sg imperative: «Мий руки»." },
+    { sentence:"_____ сюди. (come)", choices:["Йди","Пішов","Йдеш","Йти"], answer:0, explanation:"2sg imperative: «Йди сюди»." },
+    { sentence:"_____ ротик. (open)", choices:["Відкрий","Відкривай","Відкрито","Відкрив"], answer:0, explanation:"Immediate command: «Відкрий ротик»." },
+    { sentence:"_____ іграшки. (put away)", choices:["Прибери","Прибирай","Прибирав","Прибраний"], answer:0, explanation:"2sg imperative: «Прибери іграшки»." }
+  ]},
+  grammar_possessives: { name:"Grammar — Possessives", type:"case", items:[
+    { sentence:"Це _____ іграшка. (she)", choices:["її","його","твоя","наша"], answer:0, explanation:"«її» = her (invariable)." },
+    { sentence:"Де _____ пляшечка? (you, sg.)", choices:["твоя","твоїй","твоєю","твій"], answer:0, explanation:"Nom. fem. → «твоя пляшечка»." },
+    { sentence:"Це _____ м'яч. (we)", choices:["наш","наша","наше","наші"], answer:0, explanation:"Nom. masc. → «наш м'яч»." },
+    { sentence:"Я тримаю _____ руку. (you, sg.)", choices:["твою","твоя","твоїй","твоєю"], answer:0, explanation:"Acc. fem. → «твою руку»." }
+  ]},
+  grammar_present: { name:"Grammar — Present tense", type:"case", items:[
+    {sentence:"Я _____ (їсти) кашу.", choices:["їм","їси","їсть","їмо"], answer:0, explanation:"1sg present: я їм."},
+    {sentence:"Вона _____ (пити) молоко.", choices:["п'є","п'ю","п'єш","п'ють"], answer:0, explanation:"3sg present: вона п'є."},
+    {sentence:"Ми _____ (читати) книжку.", choices:["читаємо","читає","читають","читаю"], answer:0, explanation:"1pl present: ми читаємо."},
+    {sentence:"Вони _____ (писати) листи.", choices:["пишуть","пише","пишемо","пишеш"], answer:0, explanation:"3pl present: вони пишуть."},
+    {sentence:"Ти _____ (йти) додому.", choices:["йдеш","йдуть","йдете","йду"], answer:0, explanation:"2sg present: ти йдеш."},
+    {sentence:"Він _____ (бачити) м'яч.", choices:["бачить","бачать","бачимо","бачиш"], answer:0, explanation:"3sg present: він бачить."},
+    {sentence:"Ми _____ (працювати) разом.", choices:["працюємо","працює","працюють","працюю"], answer:0, explanation:"1pl present: ми працюємо."},
+    {sentence:"Я _____ (казати) правду.", choices:["кажу","каже","кажеш","кажемо"], answer:0, explanation:"1sg present: я кажу."}
+  ]},
+  grammar_past: { name:"Grammar — Past tense", type:"case", items:[
+    {sentence:"Він _____ (їсти) суп учора.", choices:["їв","їла","їли","їсть"], answer:0, explanation:"Past masc.: він їв."},
+    {sentence:"Вона _____ (пити) воду.", choices:["пила","пив","пили","п'є"], answer:0, explanation:"Past fem.: вона пила."},
+    {sentence:"Вони _____ (йти) додому.", choices:["йшли","йшов","йшла","йдуть"], answer:0, explanation:"Past plural: вони йшли."},
+    {sentence:"Я (жін.) _____ (читати) книгу.", choices:["читала","читав","читали","читаю"], answer:0, explanation:"Past fem.: я читала."},
+    {sentence:"Я (чол.) _____ (працювати) багато.", choices:["працював","працювала","працювали","працює"], answer:0, explanation:"Past masc.: я працював."},
+    {sentence:"Воно _____ (спати) міцно.", choices:["спало","спав","спала","сплять"], answer:0, explanation:"Past neuter: воно спало."},
+    {sentence:"Ми _____ (гратися) в парку.", choices:["гралися","грався","гралася","граються"], answer:0, explanation:"Past plural reflexive: ми гралися."}
+  ]},
+  grammar_prepositions: { name:"Grammar — Prepositions (motion vs location)", type:"case", items:[
+    {sentence:"Кладу іграшку _____ (коробка).", choices:["в коробку","у коробці","до коробки","на коробку"], answer:0, explanation:"Motion into → Acc.: в коробку."},
+    {sentence:"Іграшка лежить _____ (коробка).", choices:["у коробці","в коробку","на коробку","до коробки"], answer:0, explanation:"Location → Loc.: у коробці."},
+    {sentence:"Ми йдемо _____ (парк).", choices:["до парку","у парку","в парку","на парку"], answer:0, explanation:"‘to’ a place → до + Gen.: до парку."},
+    {sentence:"М'яч лежить _____ (стіл).", choices:["на столі","на стіл","у столі","до столу"], answer:0, explanation:"Location ‘on’ → на + Loc.: на столі."},
+    {sentence:"Він кладе книжку _____ (стіл).", choices:["на стіл","на столі","у столі","до столу"], answer:0, explanation:"Motion onto → Acc.: на стіл."},
+    {sentence:"Ми живемо _____ (Київ).", choices:["у Києві","у Київ","до Києва","на Києві"], answer:0, explanation:"Location in a city → у Києві."},
+    {sentence:"Постав пляшку _____ (холодильник).", choices:["в холодильник","у холодильнику","на холодильнику","до холодильника"], answer:0, explanation:"Motion into → Acc.: в холодильник."},
+    {sentence:"Зустрінемось _____ (зупинка).", choices:["на зупинці","на зупинку","у зупинці","до зупинки"], answer:0, explanation:"Meeting ‘at’ → на + Loc.: на зупинці."}
+  ]},
+  grammar_genitive_neg: { name:"Grammar — Genitive after negation", type:"case", items:[
+    {sentence:"У мене немає _____ (хліб).", choices:["хліба","хліб","хлібом","хлібу"], answer:0, explanation:"After «немає» use Gen.: хліба."},
+    {sentence:"Немає _____ (водa).", choices:["води","вода","водою","воді"], answer:0, explanation:"Gen. fem.: води."},
+    {sentence:"Тут не було _____ (люди).", choices:["людей","люди","людям","людьми"], answer:0, explanation:"Gen. pl.: людей."}
+  ]},
+
+  cases_nominative: { name:"Grammar — Nominative", type:"case", items:[
+    {sentence:"_____ — столиця.", choices:["Київ","Києва","Києві","Києвом"], answer:0, explanation:"Subject nominative."}
+  ]},
+  cases_genitive: { name:"Grammar — Genitive", type:"case", items:[
+    {sentence:"У мене немає _____ (час).", choices:["часу","час","часом","часі"], answer:0, explanation:"«немає» + Gen."}
+  ]},
+  cases_dative: { name:"Grammar — Dative", type:"case", items:[
+    {sentence:"Дай _____ (я) воду.", choices:["мені","мене","мною","мен"], answer:0, explanation:"Recipient Dative."}
+  ]},
+  cases_accusative: { name:"Grammar — Accusative", type:"case", items:[
+    {sentence:"Я читаю _____ (книга).", choices:["книгу","книга","книги","книгою"], answer:0, explanation:"Direct object."}
+  ]},
+  cases_vocative: { name:"Grammar — Vocative", type:"case", items:[
+    {sentence:"_____, ти де?", choices:["Мамо","Мама","Мамі","Мамою"], answer:0, explanation:"Addressing."}
+  ]},
+  grammar_future: { name:"Grammar — Future", type:"case", items:[
+    {sentence:"Завтра я _____ (читати).", choices:["буду читати","прочитаю","читаю","читав"], answer:0, explanation:"Compound future."}
+  ]},
+  grammar_aspect: { name:"Grammar — Aspect", type:"case", items:[
+    {sentence:"Я часто _____ (читати).", choices:["читаю","прочитаю","прочитав","буду читати"], answer:0, explanation:"Habit → imperf."}
+  ]},
+  grammar_conjugation: { name:"Grammar — Conjugation", type:"case", items:[
+    {sentence:"Ми _____ (читати) вранці.", choices:["читаємо","читати","читаєм","читуємо"], answer:0, explanation:"1st conj."}
+  ]},
+  grammar_agreement: { name:"Grammar — Agreement", type:"case", items:[
+    {sentence:"_____ (зелена) трава.", choices:["зелена","зелений","зелене","зелені"], answer:0, explanation:"Adj agrees."}
+  ]},
+  grammar_gender: { name:"Grammar — Noun gender", type:"case", items:[
+    {sentence:"Це моє _____ (місто).", choices:["місто","міста","місту","містом"], answer:0, explanation:"Neuter nom."}
+  ]},
+  grammar_questions: { name:"Grammar — Questions", type:"case", items:[
+    {sentence:"_____ ти студент?", choices:["Чи","Що","Де","Як"], answer:0, explanation:"Yes/No → чи."}
+  ]},
+  grammar_negation: { name:"Grammar — Negation", type:"case", items:[
+    {sentence:"Я _____ (знати) відповіді.", choices:["не знаю","не знає","нічого знаю","ніякий знаю"], answer:0, explanation:"не + verb."}
+  ]},
+  grammar_reflexive: { name:"Grammar — Reflexive", type:"case", items:[
+    {sentence:"Я _____ (митися).", choices:["миюся","мию","миюсь","миєшся"], answer:0, explanation:"‑ся form."}
+  ]},
+  grammar_motion: { name:"Grammar — Motion", type:"case", items:[
+    {sentence:"Я зараз _____ (йти) додому.", choices:["йду","ходжу","піду","йшов"], answer:0, explanation:"Directional now."}
+  ]},
+  grammar_word_order: { name:"Grammar — Word order", type:"case", items:[
+    {sentence:"(Я / його / не / бачу)", choices:["Я його не бачу","Я не бачу його","Його не бачу я","Не я бачу його"], answer:0, explanation:"Clitic early; SVO."}
+  ]},
+  grammar_copula: { name:"Grammar — є/це/—", type:"case", items:[
+    {sentence:"У нас _____ час.", choices:["є","—","це","був"], answer:0, explanation:"Existence → є."}
+  ]},
+  grammar_pronouns_cases: { name:"Grammar — Pronouns by case", type:"case", items:[
+    {sentence:"Він дивиться на _____ (я).", choices:["мене","мені","мною","мен"], answer:0, explanation:"Prep + Acc pronoun."}
+  ]},
+  grammar_comparison: { name:"Grammar — Comparison", type:"case", items:[
+    {sentence:"Вище, _____ будинок.", choices:["ніж","як","що","коли"], answer:0, explanation:"ніж = than."}
+  ]},
+
+  /* Extra vocab */
+  food_drink_basics: { name:"Food & Drink — Basics", type:"vocab", items:[
+    {uk:"хліб", en:"bread"}, {uk:"вода", en:"water"}, {uk:"чай", en:"tea"}, {uk:"кава", en:"coffee"}
+  ]},
+  dining_out: { name:"Dining Out", type:"vocab", items:[
+    {uk:"меню", en:"menu"}, {uk:"рахунок, будь ласка", en:"the bill, please"}, {uk:"офіціант", en:"waiter"}
+  ]},
+  school_education: { name:"School & Education", type:"vocab", items:[
+    {uk:"школа", en:"school"}, {uk:"університет", en:"university"}, {uk:"урок", en:"lesson"}, {uk:"домашнє завдання", en:"homework"}
+  ]},
+  work_professions: { name:"Work & Professions", type:"vocab", items:[
+    {uk:"робота", en:"work"}, {uk:"офіс", en:"office"}, {uk:"колега", en:"colleague"}, {uk:"лікар", en:"doctor"}
+  ]},
+  daily_routines: { name:"Daily Routines", type:"vocab", items:[
+    {uk:"прокидатися", en:"to wake up"}, {uk:"снідати", en:"to have breakfast"}, {uk:"працювати", en:"to work"}
+  ]},
+  time_calendar: { name:"Time & Calendar", type:"vocab", items:[
+    {uk:"сьогодні", en:"today"}, {uk:"завтра", en:"tomorrow"}, {uk:"вчора", en:"yesterday"}
+  ]},
+  weather_seasons_plus: { name:"Weather & Seasons — Plus", type:"vocab", items:[
+    {uk:"прохолодно", en:"cool"}, {uk:"спекотно", en:"hot"}, {uk:"хмарно", en:"cloudy"}
+  ]},
+  city_transport: { name:"City & Transport", type:"vocab", items:[
+    {uk:"місто", en:"city"}, {uk:"автобус", en:"bus"}, {uk:"метро", en:"subway"}
+  ]},
+  health_body: { name:"Health & Body — Adult", type:"vocab", items:[
+    {uk:"лікарня", en:"hospital"}, {uk:"аптека", en:"pharmacy"}, {uk:"боліти", en:"to hurt"}
+  ]},
+  shopping_money: { name:"Shopping & Money", type:"vocab", items:[
+    {uk:"магазин", en:"shop"}, {uk:"ринок", en:"market"}, {uk:"ціна", en:"price"}
+  ]},
+  hobbies_sports: { name:"Hobbies & Sports", type:"vocab", items:[
+    {uk:"читати", en:"to read"}, {uk:"слухати музику", en:"to listen to music"}, {uk:"бігати", en:"to run"}
+  ]},
+  technology_basics: { name:"Technology Basics", type:"vocab", items:[
+    {uk:"телефон", en:"phone"}, {uk:"комп'ютер", en:"computer"}, {uk:"пароль", en:"password"}
+  ]},
+  house_furniture: { name:"House & Furniture", type:"vocab", items:[
+    {uk:"стіл", en:"table"}, {uk:"стілець", en:"chair"}, {uk:"шафа", en:"wardrobe"}
+  ]},
+  people_relationships: { name:"People & Relationships", type:"vocab", items:[
+    {uk:"друг", en:"friend"}, {uk:"сусід", en:"neighbor"}, {uk:"колега", en:"colleague"}
+  ]},
+  numbers_21_100: { name:"Numbers 21–100", type:"vocab", items:[
+    {uk:"двадцять один", en:"twenty-one"}, {uk:"тридцять", en:"thirty"}, {uk:"сто", en:"one hundred"}
+  ]}
+});
+
+/* SKILLS — expanded path */
+const SKILLS = [
+  {id:"basics1", name:"Basics 1", emoji:"🔤", decks:["greetings","basics_core","basics_pronouns_q","numbers","numbers_11_20"], tips:`
+    <p><strong>What you’ll learn</strong>: greetings, polite phrases, question words, and numbers.</p>
+    <ul>
+      <li><strong>Articles:</strong> Ukrainian has no “a/an/the”. English answers may include them.</li>
+      <li><strong>будь ласка</strong> = “please” or “you’re welcome”.</li>
+      <li><strong>Question words:</strong> хто (who), що (what), де (where), коли (when), чому (why), як (how).</li>
+      <li><strong>Numbers 1–20:</strong> 11–19 end in <em>-надцять</em>.</li>
+    </ul>`},
+  {id:"colors_shapes", name:"Colors & Shapes", emoji:"🟥", decks:["colors","shapes"], prereq:["basics1"], tips:`
+    <p><strong>Word order:</strong> adjectives usually follow nouns: <em>зелений м'яч</em> (green ball).</p>`},
+  {id:"phrases1", name:"Phrases & Travel", emoji:"💬", decks:["phrases","travel","time_day"], prereq:["basics1"], tips:`
+    <p>Travel questions:</p>
+    <ul><li><strong>Де…?</strong> Where …?</li><li><strong>Скільки це коштує?</strong> How much is this?</li><li><strong>Чи можна карткою?</strong> Can I pay by card?</li></ul>`},
+  {id:"home", name:"Home", emoji:"🏠", decks:["rooms_household","clothes_kid","family"], prereq:["basics1"], tips:`
+    <p>Diminuatives for kid‑friendly speech: <em>носик, ротик, ручка</em>.</p>`},
+  {id:"animals", name:"Animals", emoji:"🐾", decks:["animals_kids","animal_sounds"], prereq:["phrases1"], tips:`
+    <p>Fun sounds help memory: <em>няв-няв</em> (meow), <em>гав-гав</em> (woof).</p>`},
+  {id:"body", name:"Body", emoji:"🧸", decks:["kid_feelings","kid_safety","kid_play","toys_objects","body_kids"], prereq:["home"], tips:`
+    <p>Care words for toddlers: <em>боляче?</em>, <em>обережно</em>.</p>`},
+  {id:"kidcare1", name:"Toddler Care", emoji:"🍼", decks:["kid_phrases_caregiver","kid_commands","kid_feeding","kid_diaper","kid_sleep"], prereq:["home"], tips:`
+    <p><strong>Imperatives:</strong> use 2sg for one child: <em>Сідай</em>, <em>Йди</em>.</p>`},
+  {id:"seasons", name:"Seasons", emoji:"🌦️", decks:["weather","seasons_months"], prereq:["phrases1"], tips:`<p>Months are masculine; days are lowercase.</p>`},
+  {id:"verbs", name:"Verbs & Days", emoji:"🗓️", decks:["verbs_basic","days"], prereq:["basics1"], tips:`<p>Present endings: я -ю/-у, ти -єш, він/вона -є…</p>`},
+  {id:"grammar1", name:"Grammar 1", emoji:"📘", decks:["grammar_present","grammar_imperatives","grammar_possessives"], prereq:["basics1"], tips:`
+    <p>Build present‑tense patterns and kid‑friendly commands.</p>`},
+  {id:"grammar2", name:"Grammar 2", emoji:"📙", decks:["grammar_past"], prereq:["grammar1"], tips:`<p>Past marks gender/number.</p>`},
+  {id:"grammar3", name:"Cases 1", emoji:"🧩", decks:["cases_basic","cases_instrumental"], prereq:["grammar1"], tips:`<p>Acc, Gen, Dat, Ins basics.</p>`},
+  {id:"grammar4", name:"Cases 2", emoji:"🧩", decks:["cases_locative","grammar_prepositions","grammar_genitive_neg"], prereq:["grammar3"], tips:`<p>Location vs motion; Gen after negation.</p>`},
+  {id:"food1", name:"Food & Drink 1", emoji:"🍽️", decks:["food_drink_basics","dining_out"], prereq:["basics1"], tips:`<p>Order politely with <em>будь ласка</em>.</p>`},
+  {id:"school1", name:"School & Study", emoji:"🎓", decks:["school_education","time_calendar"], prereq:["basics1"], tips:`<p>Study words + time.</p>`},
+  {id:"work1", name:"Work & Office", emoji:"💼", decks:["work_professions","phrases"], prereq:["phrases1"], tips:`<p>Gendered job titles.</p>`},
+  {id:"daily1", name:"Daily Routine", emoji:"⏰", decks:["daily_routines","time_day"], prereq:["verbs"], tips:`<p>Describe your day.</p>`},
+  {id:"city1", name:"City & Transport", emoji:"🚇", decks:["city_transport","travel"], prereq:["phrases1"], tips:`<p>Tickets & stations.</p>`},
+  {id:"health1", name:"Health & Body", emoji:"🩺", decks:["health_body","body_kids"], prereq:["home"], tips:`<p>Pharmacy & symptoms.</p>`},
+  {id:"shop1", name:"Shopping", emoji:"🛒", decks:["shopping_money","numbers_21_100"], prereq:["basics1"], tips:`<p>Prices and payment.</p>`},
+  {id:"hobby1", name:"Hobbies & Sports", emoji:"🏃", decks:["hobbies_sports","verbs_basic"], prereq:["basics1"], tips:`<p>Free time talk.</p>`},
+  {id:"tech1", name:"Tech Basics", emoji:"📱", decks:["technology_basics","phrases"], prereq:["phrases1"], tips:`<p>Everyday tech.</p>`},
+  {id:"house1", name:"Furniture & Home 2", emoji:"🛋️", decks:["house_furniture","rooms_household"], prereq:["home"], tips:`<p>More home words.</p>`},
+  {id:"people1", name:"People & Relationships", emoji:"🧑‍🤝‍🧑", decks:["people_relationships","family"], prereq:["home"], tips:`<p>Social ties.</p>`},
+  {id:"grammar5", name:"Cases 3", emoji:"🧩", decks:["cases_nominative","cases_accusative"], prereq:["grammar3"], tips:`<p>Subject vs object.</p>`},
+  {id:"grammar6", name:"Cases 4", emoji:"🧩", decks:["cases_dative","cases_genitive"], prereq:["grammar4"], tips:`<p>Dative & genitive.</p>`},
+  {id:"grammar7", name:"Cases 5", emoji:"🧩", decks:["cases_vocative"], prereq:["grammar6"], tips:`<p>Addressing (кличний).</p>`},
+  {id:"grammar8", name:"Future & Aspect", emoji:"⏭️", decks:["grammar_future","grammar_aspect"], prereq:["grammar2"], tips:`<p>буду + INF, perf future.</p>`},
+  {id:"grammar9", name:"Conjugation & Agreement", emoji:"🧠", decks:["grammar_conjugation","grammar_agreement","grammar_gender"], prereq:["verbs"], tips:`<p>Patterns + agreement.</p>`},
+  {id:"grammar10", name:"Questions & Negation", emoji:"❓", decks:["grammar_questions","grammar_negation","grammar_genitive_neg"], prereq:["grammar1"], tips:`<p>чи; negative pronouns.</p>`},
+  {id:"grammar11", name:"Reflexives & Motion", emoji:"↔️", decks:["grammar_reflexive","grammar_motion"], prereq:["grammar8"], tips:`<p>‑ся verbs; motion pairs.</p>`},
+  {id:"grammar12", name:"Word Order & Copula", emoji:"🧱", decks:["grammar_word_order","grammar_copula"], prereq:["grammar10"], tips:`<p>SVO & є/це/—.</p>`},
+  {id:"grammar13", name:"Pronouns & Comparison", emoji:"🧾", decks:["grammar_pronouns_cases","grammar_comparison"], prereq:["grammar12"], tips:`<p>Pronouns by case; най‑.</p>`}
+];
+
+/* ========================
+   TOPBAR & HOME
+   ======================== */
+function renderTopbar(){ refreshDaily(); $('#tbXP').textContent = profile.xp; $('#tbStreak').textContent = profile.streak; $('#tbHearts').textContent = CURRENT.hearts; }
+function renderHomeHero(){
+  $('#dailyGoal').textContent = profile.dailyGoal;
+  const pct = Math.min(100, Math.round((profile.xpToday/profile.dailyGoal)*100)); const ring = $('#dailyRing'); ring.style.setProperty('--p', pct+'%'); ring.textContent = Math.min(profile.dailyGoal, profile.xpToday);
+  const next = nextUnlockedSkill(); $('#startSkillLine').innerHTML = `<strong>Start here:</strong> ${next.name}`;
+}
+function isUnlocked(skill){ if(!skill.prereq || !skill.prereq.length) return true; return skill.prereq.every(id => skillLevel(id) > 0); }
+function nextUnlockedSkill(){ for(const sk of SKILLS){ if(isUnlocked(sk)) return sk; } return SKILLS[0]; }
+function renderPath(){
+  const path = $('#path'); path.innerHTML = "";
+  SKILLS.forEach((sk)=>{
+    const node = document.createElement('div'); node.className='skill';
+    const lvl = skillLevel(sk.id);
+    const locked = !isUnlocked(sk);
+    const prereqNames = (sk.prereq||[]).map(x => (SKILLS.find(s=>s.id===x)?.name || x)).join(', ');
+    node.innerHTML = `
+      <div class="node ${locked?'locked':''}" data-skill="${sk.id}" title="${sk.name}">
+        <div class="emoji">${sk.emoji}</div>
+        ${lvl>0?`<div class="crown">👑x${lvl}</div>`:""}
+      </div>
+      <div class="name">${sk.name}</div>
+      <div class="meta">${lvl>0?`Level ${lvl}/3`:(locked?`Locked: ${prereqNames}`:"Unlocked")}</div>
+      <div class="start-mini">${locked?'':`<button class="btn blue btnStartSkill" data-skill="${sk.id}">Start</button> <button class="btn ghost btnTips" data-skill="${sk.id}">Tips</button>`}</div>
+    `;
+    path.appendChild(node);
+  });
+  $$('.node').forEach(n=> n.addEventListener('click', ()=>{ const id = n.getAttribute('data-skill'); const sk = SKILLS.find(s=>s.id===id); if(!isUnlocked(sk)) return; startLesson(id);}));
+  $$('.btnStartSkill').forEach(b=> b.addEventListener('click', (e)=>{ e.stopPropagation(); startLesson(b.getAttribute('data-skill')); }));
+  $$('.btnTips').forEach(b=> b.addEventListener('click', (e)=>{ e.stopPropagation(); openTips(b.getAttribute('data-skill')); }));
+}
+
+/* ========================
+   PRACTICE & LIBRARY
+   ======================== */
+const GROUPS = {
+  toddler: ["kid_phrases_caregiver","kid_commands","kid_feeding","kid_diaper","kid_sleep","kid_play","kid_safety","kid_feelings","body_kids","animals_kids","animal_sounds","toys_objects","clothes_kid","rooms_household"],
+  vocab: ["greetings","basics_core","basics_pronouns_q","basics_adjectives","alphabet_ua","numbers","numbers_11_20","colors","shapes","phrases","travel","family","verbs_basic","days","time_day","weather","seasons_months","rooms_household","clothes_kid","toys_objects","animals_kids","animal_sounds","food_drink_basics","dining_out","school_education","work_professions","daily_routines","time_calendar","weather_seasons_plus","city_transport","health_body","shopping_money","hobbies_sports","technology_basics","house_furniture","people_relationships","numbers_21_100"],
+  grammar: ["cases_basic","cases_instrumental","cases_locative","grammar_imperatives","grammar_possessives","grammar_present","grammar_past","grammar_prepositions","grammar_genitive_neg","cases_nominative","cases_genitive","cases_dative","cases_accusative","cases_vocative","grammar_future","grammar_aspect","grammar_conjugation","grammar_agreement","grammar_gender","grammar_questions","grammar_negation","grammar_reflexive","grammar_motion","grammar_word_order","grammar_copula","grammar_pronouns_cases","grammar_comparison"]
+};
+function openLibrary(){
+  const list = $('#deckList'); list.innerHTML = "";
+  const entries = Object.entries(BUILTIN_DECKS).map(([k,d])=>({key:k, deck:d, count:(d.items||[]).length, mode:d.mode||null})).sort((a,b)=> a.deck.name.localeCompare(b.deck.name));
+  const q = normalizeText($('#libSearch').value||"");
+  const filtered = q? entries.filter(e=> normalizeText(e.deck.name).includes(q) || normalizeText(e.key).includes(q) ): entries;
+  filtered.forEach(e=>{
+    const isMedia = e.mode === 'animal-sounds-uk';
+    const typeTag = (e.deck.type||'deck').toUpperCase();
+    const div = document.createElement('div'); div.className='deck-item';
+    div.innerHTML = `<div><strong>${e.deck.name}</strong><div class="muted" style="font-size:.85rem">${typeTag} • ${e.count} items</div></div>
+      <button class="btn" data-mode="${isMedia?'animal-sounds-uk':'play'}" data-key="${e.key}">${isMedia?'Start':'Play'}</button>
+      <button class="btn ghost" data-mode="audio" data-key="${e.key}">Audio</button>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll('button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const key = btn.getAttribute('data-key'); const mode = btn.getAttribute('data-mode'); const deck = BUILTIN_DECKS[key];
+      if(mode==='audio'){ startQuickSession({name: (deck?.name||'Deck')+" (Audio)", decks: [key], steps:10, hearts:5, override: 'audio'}); }
+      else if(mode==='animal-sounds-uk'){ startQuickSession({name: deck.name, decks: [key], steps: (deck.items||[]).length, hearts:5, override: 'animal-sounds-uk'}); }
+      else { startQuickSession({name: deck?.name||'Deck', decks: [key], steps:10, hearts:5, override: null}); }
+    });
+  });
+}
+$('#libSearch').addEventListener('input', openLibrary);
+$('#libClear').addEventListener('click', ()=>{ $('#libSearch').value=""; openLibrary(); });
+
+/* ========================
+   GRAMMAR HUB
+   ======================== */
+function renderGrammarHub(){
+  const list = $('#grammarList'); list.innerHTML="";
+  const entries = Object.entries(GRAMMAR_TOPICS).map(([id,t])=>({id, ...t}));
+  const q = normalizeText($('#gramSearch').value||"");
+  const filtered = q? entries.filter(e=> normalizeText(e.title).includes(q) || normalizeText(e.html).includes(q) || (e.decks||[]).join(' ').includes(q) ): entries;
+  filtered.forEach(t=>{
+    const card=document.createElement('div'); card.className='card';
+    card.innerHTML = `<div class="title">📘 ${t.title}</div>
+      <div class="muted">Short lesson with examples.</div>
+      <div class="small">${(t.decks&&t.decks.length)?`Covers: ${t.decks.join(', ')}`:`General reference`}</div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap">
+        <button class="btn" data-id="${t.id}" data-action="open">Open</button>
+        ${(t.decks&&t.decks.length)?`<button class="btn blue" data-id="${t.id}" data-action="practice">Practice this</button>`:""}
+      </div>`;
+    list.appendChild(card);
+  });
+  list.querySelectorAll('button').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const id=b.getAttribute('data-id'); const act=b.getAttribute('data-action');
+      if(act==='open'){ openGrammarPanel(id); }
+      else if(act==='practice'){ const decks=GRAMMAR_TOPICS[id].decks||[]; if(decks.length){ startQuickSession({name:`Grammar: ${GRAMMAR_TOPICS[id].title}`, decks: decks, steps:10, hearts:5}); } }
+    });
+  });
+}
+$('#gramSearch').addEventListener('input', renderGrammarHub);
+$('#gramClear').addEventListener('click', ()=>{ $('#gramSearch').value=""; renderGrammarHub(); });
+
+/* ========================
+   LESSON GENERATION
+   ======================== */
+function decksForSkill(id){ const sk = SKILLS.find(s=>s.id===id); if(!sk) return []; return sk.decks.map(k=>deckByKey(k)).filter(Boolean); }
+function sampleFromDeckKeys(keys, count){
+  try{
+    const pool = keys.flatMap(k => (deckByKey(k)?.items||[]).map(it=>({...it, __deck: deckByKey(k), __deckKey: k})));
+    return shuffle(pool).filter(Boolean).slice(0, Math.min(count, pool.length));
+  }catch(e){ console.error(e); return []; }
+}
+function sampleItemsForSkill(id, count){
+  try{
+    const decks = decksForSkill(id);
+    const pool = decks.flatMap(d=> (d?.items||[]).map(it=>({...it, __deck:d})));
+    return shuffle(pool).filter(Boolean).slice(0, Math.min(count, pool.length));
+  }catch(e){ console.error(e); return []; }
+}
+function topicForDeckKey(deckKey){
+  if(deckKey==="cases_nominative") return "nominative";
+  if(deckKey==="cases_genitive") return "genitive";
+  if(deckKey==="cases_dative") return "dative";
+  if(deckKey==="cases_accusative") return "accusative";
+  if(deckKey==="cases_vocative") return "vocative";
+  if(deckKey==="grammar_future") return "future";
+  if(deckKey==="grammar_aspect") return "aspect";
+  if(deckKey==="grammar_conjugation") return "conjugation_breakdown";
+  if(deckKey==="grammar_agreement") return "agreement";
+  if(deckKey==="grammar_gender") return "gender_basics";
+  if(deckKey==="grammar_questions") return "questions_answers";
+  if(deckKey==="grammar_negation") return "negation_full";
+  if(deckKey==="grammar_reflexive") return "reflexive_sya";
+  if(deckKey==="grammar_motion") return "motion_verbs";
+  if(deckKey==="grammar_word_order") return "word_order";
+  if(deckKey==="grammar_copula") return "copula_je";
+  if(deckKey==="grammar_pronouns_cases") return "pronouns_cases";
+  if(deckKey==="grammar_comparison") return "comparison";
+
+  if(!deckKey) return "translation_basics";
+  if(deckKey.startsWith("grammar_present")) return "present";
+  if(deckKey.startsWith("grammar_past")) return "past";
+  if(deckKey.startsWith("grammar_imperatives") || deckKey==="kid_commands") return "imperatives";
+  if(deckKey.startsWith("grammar_possessives")) return "possessives";
+  if(deckKey.startsWith("cases_")) return "cases_overview";
+  if(deckKey==="cases_instrumental") return "instrumental";
+  if(deckKey==="cases_locative") return "locative";
+  if(deckKey==="grammar_prepositions") return "prepositions_motion";
+  if(deckKey==="grammar_genitive_neg") return "genitive_negation";
+  return "translation_basics";
+}
+
+/* ---- Special builder for Animal Sounds (answers in Ukrainian) ---- */
+function buildAnimalSoundTask(item, fromDeckKey){
+  // Correct answer = Ukrainian onomatopoeia (e.g., 'му-у')
+  const all = (deckByKey(fromDeckKey)?.items || []);
+  const distract = [];
+  for(const w of shuffle(all)){
+    const uk = w.uk;
+    if(uk!==item.uk && !distract.includes(uk)){ distract.push(uk); if(distract.length>=3) break; }
+  }
+  const options = shuffle([item.uk, ...distract.slice(0,2)]); // 3 options total
+  return {
+    kind:'mc',
+    direction:'animal-sound',
+    prompt:'Tap the animal, then choose its sound (українською)',
+    options,
+    answer: item.uk,
+    speak: item.uk, // Use TTS
+    media: 'animal',
+    imageEmoji: item.emoji,
+    topic:'translation_basics'
+  };
+}
+
+function buildMC_UK_EN(item){
+  const en = primaryEn(item.en);
+  const distractPool = Object.values(BUILTIN_DECKS).filter(d=>d.type==='vocab').flatMap(d=>d.items.map(x=>primaryEn(x.en)));
+  const distract = shuffle(distractPool).filter(x=>x!==en).slice(0,3);
+  return { kind:'mc', prompt:item.uk, direction:'uk-en', options: shuffle([en, ...distract]), answer: en, speak: item.uk, topic: topicForDeckKey(item.__deckKey) };
+}
+function buildMC_EN_UK(item){
+  const uk = item.uk;
+  const pool = Object.values(BUILTIN_DECKS).filter(d=>d.type==='vocab').flatMap(d=>d.items.map(x=>x.uk));
+  const distract = []; for(const w of shuffle(pool)){ if(normalizeText(w)!==normalizeText(uk) && !distract.some(z=>normalizeText(z)===normalizeText(w))){ distract.push(w); if(distract.length>=3) break; } }
+  return { kind:'mc', prompt: primaryEn(item.en), direction:'en-uk', options: shuffle([uk, ...distract]), answer: uk, speak: null, topic: topicForDeckKey(item.__deckKey) };
+}
+function genTaskFromItem(item, overrideMode=null){
+  if(!item) return null;
+  if(overrideMode==='animal-sounds-uk' || item.__deckKey==='animal_sounds_media'){
+    return buildAnimalSoundTask(item, item.__deckKey);
+  }
+  if(item.__deck?.type==='case'){
+    const q = item;
+    const topic = topicForDeckKey(item.__deckKey||"");
+    return { kind:'mcg', prompt:q.sentence, options: q.choices.map(c=>c), answerIndex:q.answer, explain:q.explanation||"", speak: q.sentence.replace("_____", "…"), topic };
+  }
+  if(overrideMode==='audio'){ return buildMC_UK_EN(item); }
+  if(overrideMode==='en-uk-mc'){ return buildMC_EN_UK(item); }
+  const rnd = Math.random();
+  if(rnd < .5){
+    return buildMC_UK_EN(item);
+  }else if(rnd < .85){
+    const ansTokens = tokeniseEN(item.en);
+    const fillers = shuffle(["a","the","is","are","to","with","and","in","at","please","now","my","your","this","that"]);
+    const bank = shuffle([...ansTokens, ...fillers.slice(0, Math.max(2, 6-ansTokens.length))]);
+    return { kind:'wb', prompt:item.uk, direction:'uk-en', bank, answerTokens: ansTokens, speak: item.uk, topic: topicForDeckKey(item.__deckKey) };
+  }else{
+    return buildMC_EN_UK(item);
+  }
+}
+function safeBuildTasks(base, steps, override){
+  return shuffle(base).filter(Boolean).map(it => genTaskFromItem(it, override)).filter(Boolean).slice(0, steps);
+}
+function buildLessonFromSkill(skillId, steps=10){
+  CURRENT.skillId = skillId; CURRENT.hearts = 5; CURRENT.stepsTotal = steps; CURRENT.stepsDone = 0; CURRENT.correct = 0; CURRENT.wrong = 0; CURRENT.modeOverride = null; CURRENT.quickDeckKeys=null; CURRENT.results = [];
+  const base = sampleItemsForSkill(skillId, 24);
+  base.forEach(it=> { if(it) it.__deckKey = Object.entries(BUILTIN_DECKS).find(([k,d])=> d===it.__deck)?.[0] || ""; });
+  CURRENT.tasks = safeBuildTasks(base, steps, null);
+  if(CURRENT.tasks.length===0){
+    const seed = sampleFromDeckKeys(["greetings","basics_core","basics_pronouns_q"], 24);
+    CURRENT.tasks = safeBuildTasks(seed, steps, null);
+  }
+  CURRENT.idx = 0;
+}
+function startQuickSession({name, decks, steps=10, hearts=5, override=null}){
+  CURRENT.skillId = "__quick__"; CURRENT.quickName = name; CURRENT.quickDeckKeys = decks; CURRENT.hearts = hearts; CURRENT.stepsTotal = steps; CURRENT.stepsDone = 0; CURRENT.correct = 0; CURRENT.wrong = 0; CURRENT.modeOverride = override; CURRENT.results = [];
+  const base = sampleFromDeckKeys(decks, 36);
+  CURRENT.tasks = safeBuildTasks(base, steps, override);
+  if(CURRENT.tasks.length===0){
+    const seed = sampleFromDeckKeys(["greetings","basics_core","basics_pronouns_q"], 24);
+    CURRENT.tasks = safeBuildTasks(seed, steps, override);
+  }
+  CURRENT.idx = 0;
+  setView('#lesson');
+  renderSegments(); renderHearts(); renderTask();
+  $('#lessonTitle').textContent = name;
+}
+
+/* ========================
+   RENDER: LESSON
+   ======================== */
+function setView(id){ $$('.view').forEach(v=>v.classList.remove('active')); $(id).classList.add('active'); $$('.tab').forEach(b=> b.classList.remove('active')); if(id==='#home') $('#tabHome').classList.add('active'); if(id==='#practice') $('#tabPractice').classList.add('active'); if(id==='#library') $('#tabLibrary').classList.add('active'); if(id==='#grammar') $('#tabGrammar').classList.add('active'); }
+function renderHearts(){ const wrap = $('#hearts'); wrap.innerHTML = ""; for(let i=0;i<5;i++){ const d = document.createElement('div'); d.className = 'h '+(i<CURRENT.hearts?'on':''); wrap.appendChild(d); } $('#tbHearts').textContent = CURRENT.hearts; }
+function renderSegments(){
+  const wrap = $('#segments'); wrap.innerHTML = "";
+  const res = Array.isArray(CURRENT.results) ? CURRENT.results : [];
+  for(let i=0;i<CURRENT.stepsTotal;i++){
+    const seg = document.createElement('div'); seg.className = 'seg';
+    if(i < res.length){ seg.classList.add(res[i] ? 'done' : 'fail'); }
+    wrap.appendChild(seg);
+  }
+}
+function showInfo(msg){
+  const fb = $('#feedback'); fb.style.display='block'; fb.className='feedback info'; fb.innerHTML = `<strong>Heads up:</strong> <span class="muted">${msg}</span>`;
+}
+let checking=false;
+function renderTask(){
+  try{
+    renderSegments(); renderHearts();
+    const title = CURRENT.skillId==="__quick__" ? (CURRENT.quickName||"Practice") : (SKILLS.find(s=>s.id===CURRENT.skillId)?.name || "Lesson");
+    $('#lessonTitle').textContent = title;
+    $('#feedback').style.display='none'; $('#feedback').className='feedback'; $('#btnCheck').disabled = true; $('#btnIDK').disabled = false; checking=false;
+    const bc=$('#btnCheck'); if(bc){ bc.textContent='CHECK'; bc.classList.remove('red'); bc.classList.add('primary'); bc.dataset.mode='check'; }
+    const t = CURRENT.tasks[CURRENT.idx];
+    if(!t){ $('#promptLabel').textContent="Loading task…"; $('#mcWrap').innerHTML=""; $('#wbWrap').style.display='none'; $('#mediaArea').innerHTML=""; return; }
+    $('#subtitle').textContent = t.direction==='uk-en' ? 'Translate to English' : t.direction==='en-uk' ? 'Choose the Ukrainian translation' : (t.direction==='animal-sound'?'Tap the animal, then choose its sound':'Choose the correct form');
+    $('#speakBtn').style.display = '';
+    const __spk = getSpeakText(t);
+    $('#speakBtn').onclick = ()=> speak(__spk); $('#promptLabel').innerHTML = t.prompt;
+
+    const media = $('#mediaArea'); media.innerHTML = "";
+    if(t.media==='animal' && t.imageEmoji){
+      const card = document.createElement('button');
+      card.className = 'animalBtn';
+      card.setAttribute('aria-label','Play animal sound');
+      card.textContent = t.imageEmoji;
+      card.addEventListener('click', ()=> speak(t.speak||''));
+      media.appendChild(card);
+      const hint = document.createElement('div'); hint.className='animalHint'; hint.textContent = 'Tap the animal to hear the sound (Ukrainian onomatopoeia)';
+      media.appendChild(hint);
+    }
+
+    $('#mcWrap').style.display='none'; $('#wbWrap').style.display='none'; $('#mcWrap').innerHTML = "";
+    if(t.kind==='wb'){
+      $('#wbWrap').style.display='block'; const ans = $('#wbAnswer'); const bank = $('#wbBank'); ans.innerHTML=""; bank.innerHTML="";
+      t.bank.forEach(tok=>{ const chip=document.createElement('button'); chip.className='chip'; chip.textContent=tok;
+        chip.addEventListener('click', ()=>{ chip.classList.add('used'); const pick=document.createElement('button'); pick.className='chip'; pick.textContent=tok; pick.addEventListener('click', ()=>{ pick.remove(); chip.classList.remove('used'); checkWBEnable(); }); ans.appendChild(pick); checkWBEnable(); });
+        bank.appendChild(chip);
+      });
+      function checkWBEnable(){ const count = $$('#wbAnswer .chip').length; $('#btnCheck').disabled = count===0; }
+    }else{
+      $('#mcWrap').style.display='grid';
+      const opts = t.options || [];
+      opts.forEach((opt)=>{
+        const b = document.createElement('button'); b.className='opt'; b.textContent = opt;
+        b.addEventListener('click', ()=>{ $$('#mcWrap .opt').forEach(x=>x.classList.remove('selected')); b.classList.add('selected'); b.dataset.sel='1'; $('#btnCheck').disabled=false; });
+        $('#mcWrap').appendChild(b);
+      });
+    }
+  }catch(e){
+    console.error(e); toast("Reloading task…");
+    if(CURRENT.idx < CURRENT.tasks.length-1){ CURRENT.idx++; renderTask(); }
+    else{ startQuickSession({name:"Practice — fallback", decks:["greetings","basics_core"], steps:6, hearts:5}); }
+  }
+}
+function checkAnswer(){
+  const bc=$('#btnCheck'); const mode=(bc&&bc.dataset&&bc.dataset.mode)||'check';
+  if(mode==='continue'||mode==='gotit'){ nextStep(); return; }
+  if(mode==='end'){ endLesson(false); return; }
+  if(checking) return; checking=true; $('#btnCheck').disabled=true; $('#btnIDK').disabled=true;
+  try{
+    const t = CURRENT.tasks[CURRENT.idx];
+    if(!t){ const bc=$('#btnCheck'); bc.textContent='CONTINUE'; bc.classList.remove('red'); bc.classList.add('primary'); bc.disabled=false; bc.dataset.mode='continue'; checking=false; return; }
+    let correct=false, show="", explain="";
+
+    if(t.kind==='wb'){
+      const picked = $$('#wbAnswer .chip').map(x=>x.textContent);
+      if(picked.length===0){ showInfo("Tap words to build your answer first."); $('#btnIDK').disabled=false; checking=false; return; }
+      const target = t.answerTokens; correct = sameText(picked.join(' '), target.join(' ')); show = target.join(' ');
+    }else if(t.kind==='mc'){
+      const sel = $$('#mcWrap .opt').find(x=>x.classList.contains('selected'));
+      if(!sel){ showInfo("Please select an option first."); $('#btnIDK').disabled=false; checking=false; return; }
+      correct = sameText(sel.textContent, t.answer);
+      $$('#mcWrap .opt').forEach(b=>{ const good = sameText(b.textContent, t.answer); if(good) b.classList.add('correct'); if(b===sel && !good) b.classList.add('wrong'); });
+      show = t.answer;
+    }else if(t.kind==='mcg'){
+      const sel = $$('#mcWrap .opt').find(x=>x.classList.contains('selected'));
+      if(!sel){ showInfo("Please choose a form."); $('#btnIDK').disabled=false; checking=false; return; }
+      const idx = t.options.findIndex(o => sameText(o, sel.textContent));
+      correct = idx === t.answerIndex; explain = t.explain||"";
+      $$('#mcWrap .opt').forEach(b=>{ const good = sameText(b.textContent, t.options[t.answerIndex]); if(good) b.classList.add('correct'); if(b===sel && !good) b.classList.add('wrong'); });
+      show = t.options[t.answerIndex];
+    }else{
+      $('#btnIDK').disabled=false; checking=false; idk(); return;
+    }
+
+    $('#feedback').style.display='block';
+    if(correct){
+      $('#feedback').classList.remove('bad','info'); $('#feedback').classList.add('good');
+      $('#feedback').innerHTML = `<strong>Correct!</strong> ${explain?`<span class="muted">— ${explain}</span>`:""}`;
+      CURRENT.correct++; beep(true); markSegment(true);
+      const bc=$('#btnCheck'); bc.textContent='CONTINUE'; bc.classList.remove('red'); bc.classList.add('primary'); bc.disabled=false; bc.dataset.mode='continue'; checking=false;
+    }else{
+      $('#feedback').classList.remove('good','info'); $('#feedback').classList.add('bad');
+      $('#feedback').innerHTML = `<strong>Not quite.</strong> ${show?`<span class="muted">Answer: ${show}</span>`:""} ${explain?`<div class="muted">${explain}</div>`:""}`;
+      CURRENT.wrong++; CURRENT.hearts = Math.max(0, CURRENT.hearts-1); beep(false); renderHearts(); markSegment(false);
+      if(CURRENT.hearts===0){ const bc=$('#btnCheck'); bc.textContent='GOT IT'; bc.classList.remove('primary'); bc.classList.add('red'); bc.disabled=false; bc.dataset.mode='end'; checking=false; return; }
+      const bc=$('#btnCheck'); bc.textContent='GOT IT'; bc.classList.remove('primary'); bc.classList.add('red'); bc.disabled=false; bc.dataset.mode='gotit'; checking=false;
+    }
+  }catch(e){
+    console.error(e);
+    const t = CURRENT.tasks && CURRENT.tasks[CURRENT.idx];
+    let show = "";
+    try{
+      if(t){
+        if(t.kind==='mc'){ show = t.answer; }
+        else if(t.kind==='mcg'){ show = (t.options||[])[t.answerIndex]; }
+        else if(t.kind==='wb'){ show = (t.answerTokens||[]).join(' '); }
+      }
+    }catch(_){}
+    $('#feedback').style.display='block'; $('#feedback').className='feedback bad';
+    $('#feedback').innerHTML = `<strong>Something went wrong on this one.</strong> ${show?`<span class="muted">Answer: ${show}</span>`:""}`;
+    CURRENT.wrong++; CURRENT.hearts = Math.max(0, CURRENT.hearts-1); renderHearts(); markSegment(false);
+    const bc=$('#btnCheck');
+    if(CURRENT.hearts===0){ bc.textContent='GOT IT'; bc.classList.remove('primary'); bc.classList.add('red'); bc.disabled=false; bc.dataset.mode='end'; }
+    else { bc.textContent='GOT IT'; bc.classList.remove('primary'); bc.classList.add('red'); bc.disabled=false; bc.dataset.mode='gotit'; }
+    checking=false;
+  }
+}
+function markSegment(ok){
+  if(!Array.isArray(CURRENT.results)) CURRENT.results = [];
+  CURRENT.results[CURRENT.stepsDone] = !!ok;
+  const seg = $$('#segments .seg')[CURRENT.stepsDone];
+  if(seg){ seg.classList.remove('done','fail'); seg.classList.add(ok ? 'done' : 'fail'); }
+}
+function nextStep(){ CURRENT.stepsDone++; if(CURRENT.stepsDone >= CURRENT.stepsTotal){ endLesson(true); return; } CURRENT.idx++; renderTask(); }
+function idk(){
+  const t = CURRENT.tasks[CURRENT.idx]; CURRENT.hearts = Math.max(0, CURRENT.hearts-1); renderHearts();
+  $('#feedback').style.display='block'; $('#feedback').classList.remove('good','info'); $('#feedback').classList.add('bad');
+  const show = t && (t.kind==='mc' ? t.answer : t.kind==='mcg' ? t.options[t.answerIndex] : t.kind==='wb' ? t.answerTokens.join(' ') : "");
+  $('#feedback').innerHTML = `<strong>Skipped.</strong> <span class="muted">Answer: ${show||""}</span>`;
+  markSegment(false); if(CURRENT.hearts===0){ const bc=$('#btnCheck'); bc.textContent='GOT IT'; bc.classList.remove('primary'); bc.classList.add('red'); bc.disabled=false; bc.dataset.mode='end'; return; }
+  const bc=$('#btnCheck'); bc.textContent='GOT IT'; bc.classList.remove('primary'); bc.classList.add('red'); bc.disabled=false; bc.dataset.mode='gotit';
+}
+
+/* ========================
+   In‑lesson Grammar Panel
+   ======================== */
+function getTopicContent(id){
+  const t = GRAMMAR_TOPICS[id] || GRAMMAR_TOPICS.translation_basics;
+  return { id, title: t.title, html: t.html, decks: t.decks||[] };
+}
+function openGrammarPanel(topicId){
+  const gp = $('#gpanel'); const body = $('#gpBody'); const title = $('#gptitle');
+  const {id, title: ttitle, html, decks} = getTopicContent(topicId||'translation_basics');
+  title.textContent = ttitle;
+  body.innerHTML = `${html}`;
+  gp.classList.add('open'); gp.setAttribute('aria-hidden','false'); gp.dataset.topic = id;
+  const btn = $('#gpPractice'); if(decks && decks.length){ btn.disabled=false; btn.onclick = ()=> startQuickSession({name:`Grammar: ${ttitle}`, decks: decks, steps:10, hearts:5}); } else { btn.disabled=true; btn.onclick = null; }
+}
+function closeGrammarPanel(){
+  const gp = $('#gpanel'); gp.classList.remove('open'); gp.setAttribute('aria-hidden','true'); gp.dataset.topic="";
+}
+$('#gpClose').addEventListener('click', closeGrammarPanel);
+$('#gpOpenHub').addEventListener('click', ()=>{ closeGrammarPanel(); setView('#grammar'); });
+$('#btnOpenGrammar').addEventListener('click', ()=>{
+  const t = CURRENT.tasks[CURRENT.idx]; const topic = t && t.topic ? t.topic : 'translation_basics'; openGrammarPanel(topic);
+});
+document.addEventListener('keydown', (e)=>{ if((e.key||'').toLowerCase()==='g'){ const isOpen = $('#gpanel').classList.contains('open'); if(isOpen) closeGrammarPanel(); else { const t = CURRENT.tasks[CURRENT.idx]; const topic = t && t.topic ? t.topic : 'translation_basics'; openGrammarPanel(topic); } } });
+
+/* ========================
+   END / SUMMARY / TIPS
+   ======================== */
+function endLesson(completed){
+  setTimeout(()=>{
+    setView('#summary'); const pass = completed && CURRENT.hearts>0; const xp = pass ? 12 : 5;
+    $('#sumXP').textContent = xp; $('#sumMsg').textContent = pass ? "Great job!" : "Lesson over";
+    $('#sumCorrect').textContent = CURRENT.correct; $('#sumTotal').textContent = CURRENT.stepsTotal; $('#sumHearts').textContent = CURRENT.hearts;
+    addXP(xp); if(pass && CURRENT.skillId!=="__quick__"){ completeSkill(CURRENT.skillId); } renderPath();
+  }, 300);
+}
+function openTips(skillId){ const sk = SKILLS.find(s=>s.id===skillId); const more = `<div class="tipbox" style="margin-top:10px"><strong>Open during lessons:</strong> use the <em>🧠 Grammar</em> button (or press <kbd>G</kbd>) for context help.</div>`; $('#tipsTitle').textContent = `${sk?.name||'Tips'} — Tips`; $('#tipsBody').innerHTML = (sk?.tips || "<p class='muted'>No tips yet.</p>")+more; setView('#tips'); }
+
+/* ========================
+   NAV EVENTS
+   ======================== */
+$('#tabHome').addEventListener('click', ()=> setView('#home'));
+$('#tabPractice').addEventListener('click', ()=> { setView('#practice'); });
+$('#tabGrammar').addEventListener('click', ()=> { setView('#grammar'); renderGrammarHub(); });
+$('#tabLibrary').addEventListener('click', ()=> { setView('#library'); openLibrary(); });
+
+function startNext(){ try{ const sk = nextUnlockedSkill(); startLesson(sk.id); }catch(e){ console.error(e); toast("Starting fallback lesson"); startQuickSession({name:"Quick Start", decks:["greetings","basics_core"], steps:8, hearts:5}); } }
+$('#btnStartNext').addEventListener('click', startNext);
+$('#heroStart').addEventListener('click', startNext);
+
+$('#btnToddler').addEventListener('click', ()=> startQuickSession({name:"Toddler Mode", decks: GROUPS.toddler, steps:10, hearts:5, override:'audio'}));
+$('#btnVocab').addEventListener('click', ()=> startQuickSession({name:"Vocab Drill", decks: GROUPS.vocab, steps:10, hearts:5}));
+$('#btnAudio').addEventListener('click', ()=> startQuickSession({name:"Audio Drill", decks: GROUPS.vocab, steps:10, hearts:5, override:'audio'}));
+$('#btnReading').addEventListener('click', ()=> startQuickSession({name:"EN→UK (MC)", decks: GROUPS.vocab, steps:10, hearts:5, override: 'en-uk-mc'}));
+$('#btnGrammar').addEventListener('click', ()=> startQuickSession({name:"Grammar Review", decks: GROUPS.grammar, steps:10, hearts:5}));
+$('#btnMixed').addEventListener('click', ()=> startQuickSession({name:"Mixed Review", decks: [...GROUPS.vocab, ...GROUPS.grammar], steps:10, hearts:5}));
+
+$('#btnIDK').addEventListener('click', idk);
+$('#btnCheck').addEventListener('click', checkAnswer);
+$('#btnToHome').addEventListener('click', ()=> setView('#home'));
+$('#btnRedo').addEventListener('click', ()=> {
+  if(CURRENT.skillId==="__quick__"){
+    startQuickSession({name: CURRENT.quickName, decks: CURRENT.quickDeckKeys || GROUPS.vocab, steps: CURRENT.stepsTotal, hearts:5, override: CURRENT.modeOverride});
+  } else { startLesson(CURRENT.skillId); }
+});
+$('#btnNextSkill').addEventListener('click', ()=>{ const i = SKILLS.findIndex(s=>s.id===CURRENT.skillId); const next = SKILLS.slice(i+1).find(isUnlocked); if(next) startLesson(next.id); else setView('#home'); });
+$('#btnTips').addEventListener('click', ()=> openTips(CURRENT.skillId));
+$('#btnBackFromTips').addEventListener('click', ()=> setView('#summary'));
+
+/* ========================
+   LESSON STARTERS
+   ======================== */
+function startLesson(skillId){
+  try{
+    buildLessonFromSkill(skillId, 10);
+    setView('#lesson');
+    renderSegments(); renderHearts(); renderTask(); renderTopbar();
+  }catch(e){
+    console.error(e); toast("Starting fallback lesson");
+    startQuickSession({name:"Quick Start", decks:["greetings","basics_core"], steps:8, hearts:5});
+  }
+}
+
+/* ========================
+   INIT
+   ======================== */
+(function init(){
+  try{ primeTTS(); }catch(e){}
+
+  try{
+    refreshDaily(); renderTopbar(); renderHomeHero(); renderPath(); renderGrammarHub(); openLibrary();
+  }catch(e){
+    console.error(e);
+  }
+})();
+
+</script>
+</body>
+</html>
