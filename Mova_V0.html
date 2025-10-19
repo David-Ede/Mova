@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>MOVA — Grammar Boost</title>
+<title>MOVA — Ukrainain</title>
 <style>
   :root{
     --duo-green:#58CC02;
     --duo-green-2:#7FE12E;
     --duo-dark:#071B0C;
-    --duo-text:#0e1318;
+    --color-text:#0e1318;
     --duo-muted:#6b7580;
     --panel:#ffffff;
     --bg:#F7F9FB;
@@ -28,14 +28,14 @@
     :root{
       --panel:#11161c;
       --bg:#0b1015;
-      --duo-text:#eaf0f6;
+      --color-text:#eaf0f6;
       --duo-muted:#99a3ad;
       --border:#202a35;
       --shadow:0 14px 40px rgba(0,0,0,.45);
     }
   }
   html,body{height:100%}
-  body{ margin:0; background:linear-gradient(180deg,var(--bg),var(--bg)); color:var(--duo-text); font-family:var(--font); }
+  body{ margin:0; background:linear-gradient(180deg,var(--bg),var(--bg)); color:var(--color-text); font-family:var(--font); }
   /* Topbar */
   .topbar{
     position:sticky; top:0; z-index:7;
@@ -47,9 +47,10 @@
   @media (prefers-color-scheme: dark){ .topbar{ background:rgba(0,0,0,.25) } }
   .logo{ display:flex; gap:10px; align-items:center; font-weight:900; letter-spacing:.2px }
   .logo-badge{
-    width:34px; height:34px; border-radius:50%;
-    background: radial-gradient(circle at 35% 35%, var(--duo-green-2), var(--duo-green));
-    box-shadow: inset 0 0 0 2px rgba(255,255,255,.5), 0 6px 14px rgba(88,204,2,.35);
+    width:38px; height:24px; border-radius:6px;
+    background: linear-gradient(180deg, #005bbb 0% 50%, #ffd500 50% 100%);
+    border:2px solid #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
   }
   .topbar .stats{ display:flex; gap:12px; align-items:center }
   .pill{
@@ -60,7 +61,11 @@
   .pill.heart{ color:#e91e63 } .pill.xp{ color:var(--duo-green) } .pill.streak{ color:#ff6f00 }
   .tabbar{ display:flex; gap:6px; align-items:center }
   .tab{ border:none; background:transparent; padding:10px 12px; border-radius:12px; font-weight:800; cursor:pointer }
-  .tab.active{ background:#e6f7ff; border:1px solid var(--border) }
+  /* Non-active tabs: high contrast per theme */
+  .topbar .tab:not(.active){ color: var(--duo-dark) }
+  @media (prefers-color-scheme: dark){ .topbar .tab:not(.active){ color:#fff } }
+  /* Active tab: blue outline for clear selection */
+  .tab.active{ background:transparent; border:none; outline:2px solid var(--blue); outline-offset:2px; color:var(--color-text) }
   .btn{ border:none; cursor:pointer; font-weight:900; letter-spacing:.2px; padding:12px 16px; border-radius:14px }
   .btn.primary{ background: linear-gradient(180deg, var(--duo-green-2), var(--duo-green)); color:#fff; box-shadow:0 10px 20px rgba(88,204,2,.25) }
   .btn.blue{ background: linear-gradient(180deg, #49c1ff, #1cb0f6); color:#fff }
@@ -82,6 +87,27 @@
     padding:18px; display:grid; grid-template-columns:auto 1fr auto; gap:12px; align-items:center;
   }
   .start-card .icon{ font-size:2rem }
+  /* Hide legacy start card; replaced by Alphabet module */
+  .start-card{ display:none }
+  /* Alphabet module styles */
+  .alph-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap:8px; margin-top:10px }
+  .alph-btn{ display:grid; gap:6px; align-items:center; justify-items:center; padding:10px; border:2px solid var(--border); border-radius:12px; background:linear-gradient(180deg, rgba(127,127,127,.06), rgba(127,127,127,.03)); cursor:pointer }
+  .alph-btn .letters{ font-weight:900; font-size:1.2rem; color:#fff }
+  .alph-btn .trans{ font-size:.9rem; color:var(--duo-muted) }
+  .alph-btn:active{ transform:scale(.98) }
+  .alph-head{ display:flex; align-items:center; justify-content:space-between; gap:10px }
+  .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50 }
+  .overlay.open{ display:flex }
+  .modal{ width:min(720px, 92vw); max-height:90vh; overflow:auto; background:var(--panel); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); padding:18px; }
+  .modal .title{ font-weight:900; font-size:1.3rem; margin-bottom:8px }
+  .modal .muted{ color:var(--duo-muted) }
+  .modal .actions{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:12px }
+  .alph-bigletter{ font-size:5rem; text-align:center; margin:10px 0 }
+  .progress{ height:8px; background:#e5eaf0; border-radius:6px; overflow:hidden }
+  .progress > div{ height:100%; background:var(--blue); width:0 }
+  /* Ensure Close button in Alphabet overlay has strong contrast */
+  #alphClose{ background:#1f2a37; color:#fff; border-color:#2b3a46 }
+  #alphClose:hover{ filter:brightness(1.08) }
   .ring{
     --size:52px; width:var(--size); height:var(--size); border-radius:50%;
     background: conic-gradient(var(--duo-green) var(--p,0%), #cfd8dc 0);
@@ -117,7 +143,8 @@
   .prompt .mini{ color:var(--duo-muted); font-size:.9rem; font-weight:700 }
   .muted{ color:var(--duo-muted) }
   .mc-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:10px; margin-top:10px }
-  .opt{ text-align:left; padding:12px 14px; border:2px solid var(--border); border-radius:14px; background:linear-gradient(180deg, rgba(127,127,127,.04), rgba(127,127,127,.02)); cursor:pointer; font-size:1.05rem; transition:border .15s, transform .05s; }
+  .opt{ text-align:left; padding:12px 14px; border:2px solid var(--border); border-radius:14px; background:linear-gradient(180deg, rgba(127,127,127,.04), rgba(127,127,127,.02)); cursor:pointer; font-size:1.05rem; transition:border .15s, transform .05s; color: var(--duo-dark) }
+  @media (prefers-color-scheme: dark){ .opt{ color:#fff } }
   .opt:hover{ transform:translateY(-1px) } .opt.selected{ border-color: var(--blue) } .opt.correct{ border-color: var(--duo-green) } .opt.wrong{ border-color: var(--red) }
   .wb-bank, .wb-answer{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
   .chip{ border:1px solid var(--border); border-radius:10px; padding:8px 10px; background:#f2f6fa; cursor:pointer; font-weight:700; }
@@ -170,13 +197,18 @@
   /* Mini toast */
   .toast{ position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:#111; color:#fff; padding:10px 14px; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,.3); opacity:0; transition:opacity .2s, transform .2s; z-index:20; }
   .toast.show{ opacity:1; transform:translateX(-50%) translateY(-6px); }
+  /* Dark-mode contrast fixes for light components */
+  @media (prefers-color-scheme: dark){
+    .feedback{ background:#1a2430 }
+    .tipbox{ background:#1e2a33; border-color:#2b3a46 }
+  }
 </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo"><div class="logo-badge" aria-hidden="true"></div> MOVA <span class="badge">Grammar Boost</span></div>
+    <div class="logo"><div class="logo-badge" aria-hidden="false"></div> MOVA <span class="badge">Ukrainain</span></div>
     <div class="tabbar">
-      <button id="tabHome" class="tab active">Learn</button>
+      <button id="tabHome" class="tab active">Home</button>
       <button id="tabPractice" class="tab">Practice</button>
       <button id="tabGrammar" class="tab">Grammar</button>
       <button id="tabLibrary" class="tab">Library</button>
@@ -200,6 +232,16 @@
             <div class="muted">Tap <em>Start Next Lesson</em> or click any unlocked skill node below.</div>
           </div>
           <div><button id="heroStart" class="btn primary">Start</button></div>
+        </div>
+        <div class="card" id="alphabetCard">
+          <div class="alph-head">
+            <div>
+              <div class="title"><strong>Alphabet:</strong> Ukrainian Cyrillic</div>
+              <div class="muted">Tap a letter to hear it. Learn in small sets.</div>
+            </div>
+            <div><button id="btnAlphabetIntro" class="btn primary">About the Alphabet</button></div>
+          </div>
+          <!-- Alphabet grid moved to overlay; not shown on Home -->
         </div>
         <div class="goal">
           <div class="ring" id="dailyRing">0</div>
@@ -340,6 +382,24 @@
     </section>
   </main>
 
+  <!-- Alphabet overlay -->
+  <div id="alphabetOverlay" class="overlay" aria-hidden="true">
+    <div class="modal">
+      <div id="alphIntroView">
+        <div class="title">Learn the Ukrainian Alphabet</div>
+        <p class="muted">Ukrainian uses the Cyrillic script. Some letters map neatly to English sounds while others are new. Tap Start to explore 10 letters at a time with audio.</p>
+        <div id="alphabetGrid" class="alph-grid"></div>
+        <div class="actions"><button class="btn ghost" id="alphClose">Close</button><button class="btn primary" id="alphStart">Start</button></div>
+      </div>
+      <div id="alphLessonView" style="display:none">
+        <div class="title">Letter Practice</div>
+        <div class="progress" aria-hidden="true"><div id="alphProg"></div></div>
+        <div id="alphBig" class="alph-bigletter">А а</div>
+        <div class="actions"><button class="btn" id="alphPlay">Play sound</button><button class="btn primary" id="alphNext">Next</button></div>
+      </div>
+    </div>
+  </div>
+
   <!-- In-lesson Grammar Side Panel -->
   <aside id="gpanel" class="gpanel" aria-hidden="true">
     <div class="gph">
@@ -428,7 +488,85 @@ function speak(text){
     else{ speechSynthesis.speak(u); }
   }catch(e){}
 }
-function beep(ok=true){ try{ const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o = ctx.createOscillator(); const g=ctx.createGain(); o.type='sine'; o.frequency.value= ok? 880: 220; g.gain.value=.0001; o.connect(g); g.connect(ctx.destination); o.start(); const t=ctx.currentTime; g.gain.exponentialRampToValueAtTime(.15, t+.02); g.gain.exponentialRampToValueAtTime(.00001, t+.25); o.stop(t+.26); }catch(e){} }
+function beep(ok=true){ try{ const ctx = new (window.AudioContext||window.webkitAudioContext)(); const o=ctx.createOscillator(); const g=ctx.createGain(); o.type='triangle'; o.frequency.value = ok? 1200 : 180; g.gain.value=.0001; o.connect(g); g.connect(ctx.destination); o.start(); const t=ctx.currentTime; g.gain.exponentialRampToValueAtTime(.18, t+.02); g.gain.exponentialRampToValueAtTime(.00001, t+.30); o.stop(t+.31); }catch(e){} }
+
+/* ========================
+   ALPHABET MODULE
+   ======================== */
+const ALPHABET = [
+  {u:'А', l:'а', en:'a', speak:'а'},
+  {u:'Б', l:'б', en:'b', speak:'б'},
+  {u:'В', l:'в', en:'v', speak:'в'},
+  {u:'Г', l:'г', en:'h', speak:'г'},
+  {u:'Ґ', l:'ґ', en:'g', speak:'ґ'},
+  {u:'Д', l:'д', en:'d', speak:'д'},
+  {u:'Е', l:'е', en:'e', speak:'е'},
+  {u:'Є', l:'є', en:'ye/e', speak:'є'},
+  {u:'Ж', l:'ж', en:'zh', speak:'ж'},
+  {u:'З', l:'з', en:'z', speak:'з'},
+  {u:'И', l:'и', en:'y', speak:'и'},
+  {u:'І', l:'і', en:'i', speak:'і'},
+  {u:'Ї', l:'ї', en:'yi/i', speak:'ї'},
+  {u:'Й', l:'й', en:'y', speak:'й'},
+  {u:'К', l:'к', en:'k', speak:'к'},
+  {u:'Л', l:'л', en:'l', speak:'л'},
+  {u:'М', l:'м', en:'m', speak:'м'},
+  {u:'Н', l:'н', en:'n', speak:'н'},
+  {u:'О', l:'о', en:'o', speak:'о'},
+  {u:'П', l:'п', en:'p', speak:'п'},
+  {u:'Р', l:'р', en:'r', speak:'р'},
+  {u:'С', l:'с', en:'s', speak:'с'},
+  {u:'Т', l:'т', en:'t', speak:'т'},
+  {u:'У', l:'у', en:'u', speak:'у'},
+  {u:'Ф', l:'ф', en:'f', speak:'ф'},
+  {u:'Х', l:'х', en:'kh', speak:'х'},
+  {u:'Ц', l:'ц', en:'ts', speak:'ц'},
+  {u:'Ч', l:'ч', en:'ch', speak:'ч'},
+  {u:'Ш', l:'ш', en:'sh', speak:'ш'},
+  {u:'Щ', l:'щ', en:'shch', speak:'щ'},
+  {u:'Ь', l:'ь', en:"soft sign", speak:''},
+  {u:'Ю', l:'ю', en:'yu/u', speak:'ю'},
+  {u:'Я', l:'я', en:'ya/ia', speak:'я'}
+];
+function buildAlphabetGrid(){
+  const root = document.getElementById('alphabetGrid');
+  if(!root || root.dataset.built) return;
+  root.dataset.built = '1';
+  root.innerHTML = ALPHABET.map((x,i)=>`
+    <button class="alph-btn" data-idx="${i}" aria-label="${x.u}${x.l} ${x.en}">
+      <div class="letters">${x.u} ${x.l}</div>
+      <div class="trans">${x.en}</div>
+    </button>`).join('');
+  root.querySelectorAll('.alph-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ const i = +btn.dataset.idx; playLetter(i); });
+  });
+}
+function playLetter(i){ const L = ALPHABET[i]; if(!L) return; const say = L.speak || L.u; try{ speak(say); }catch(e){ beep(true); } }
+function openAlphabetIntro(){ const ov = document.getElementById('alphabetOverlay'); if(!ov) return; ov.classList.add('open'); try{ document.getElementById('alphIntroView').style.display='block'; document.getElementById('alphLessonView').style.display='none'; }catch(e){} }
+function closeAlphabet(){ const ov = document.getElementById('alphabetOverlay'); if(ov) ov.classList.remove('open'); }
+let ALPH_SESSION = { order:[], idx:0 };
+function startAlphabetExercise(){
+  const pool = [...ALPHABET];
+  ALPH_SESSION.order = shuffle(pool).slice(0,10);
+  ALPH_SESSION.idx = 0;
+  try{ document.getElementById('alphIntroView').style.display='none'; document.getElementById('alphLessonView').style.display='block'; }catch(e){}
+  showAlphStep();
+}
+function showAlphStep(){
+  const L = ALPH_SESSION.order[ALPH_SESSION.idx];
+  if(!L){ closeAlphabet(); return; }
+  const big = document.getElementById('alphBig'); if(big) big.textContent = `${L.u} ${L.l}`;
+  const prog = document.getElementById('alphProg'); if(prog){ const pct = Math.round((ALPH_SESSION.idx)/ALPH_SESSION.order.length*100); prog.style.width = pct+"%"; }
+}
+document.addEventListener('click', (e)=>{
+  const t = e.target;
+  if(!(t instanceof Element)) return;
+  if(t.id==='btnAlphabetIntro'){ openAlphabetIntro(); }
+  if(t.id==='alphClose'){ closeAlphabet(); }
+  if(t.id==='alphStart'){ startAlphabetExercise(); }
+  if(t.id==='alphPlay'){ const L = ALPH_SESSION.order[ALPH_SESSION.idx]; if(L) try{ speak(L.speak || L.u); }catch(e){ beep(true); } }
+  if(t.id==='alphNext'){ ALPH_SESSION.idx++; if(ALPH_SESSION.idx>=ALPH_SESSION.order.length){ toast('Alphabet session complete'); closeAlphabet(); } else { showAlphStep(); } }
+});
 const deckByKey = k => BUILTIN_DECKS[k];
 
 /* ========================
@@ -1047,7 +1185,7 @@ function renderTopbar(){ refreshDaily(); $('#tbXP').textContent = profile.xp; $(
 function renderHomeHero(){
   $('#dailyGoal').textContent = profile.dailyGoal;
   const pct = Math.min(100, Math.round((profile.xpToday/profile.dailyGoal)*100)); const ring = $('#dailyRing'); ring.style.setProperty('--p', pct+'%'); ring.textContent = Math.min(profile.dailyGoal, profile.xpToday);
-  const next = nextUnlockedSkill(); $('#startSkillLine').innerHTML = `<strong>Start here:</strong> ${next.name}`;
+  try{ buildAlphabetGrid(); }catch(e){}
 }
 function isUnlocked(skill){ if(!skill.prereq || !skill.prereq.length) return true; return skill.prereq.every(id => skillLevel(id) > 0); }
 function nextUnlockedSkill(){ for(const sk of SKILLS){ if(isUnlocked(sk)) return sk; } return SKILLS[0]; }
