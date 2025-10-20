@@ -34,23 +34,6 @@
       --shadow:0 14px 40px rgba(0,0,0,.45);
     }
   }
-  /* Explicit theme overrides via user toggle (takes precedence) */
-  [data-theme="light"]{
-    --panel:#ffffff;
-    --bg:#F7F9FB;
-    --color-text:#0e1318;
-    --duo-muted:#6b7580;
-    --border:#E5EAF0;
-    --shadow:0 14px 40px rgba(10,20,30,.08);
-  }
-  [data-theme="dark"]{
-    --panel:#11161c;
-    --bg:#0b1015;
-    --color-text:#eaf0f6;
-    --duo-muted:#99a3ad;
-    --border:#202a35;
-    --shadow:0 14px 40px rgba(0,0,0,.45);
-  }
   html,body{height:100%}
   body{ margin:0; background:linear-gradient(180deg,var(--bg),var(--bg)); color:var(--color-text); font-family:var(--font); }
   /* Topbar */
@@ -68,7 +51,6 @@
     background: linear-gradient(180deg, #005bbb 0% 50%, #ffd500 50% 100%);
     border:2px solid #ffffff;
     box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    cursor:pointer;
   }
   .topbar .stats{ display:flex; gap:12px; align-items:center }
   .pill{
@@ -79,8 +61,9 @@
   .pill.heart{ color:#e91e63 } .pill.xp{ color:var(--duo-green) } .pill.streak{ color:#ff6f00 }
   .tabbar{ display:flex; gap:6px; align-items:center }
   .tab{ border:none; background:transparent; padding:10px 12px; border-radius:12px; font-weight:800; cursor:pointer }
-  /* Tabs: text color follows theme; outline indicates selection */
-  .topbar .tab{ color: var(--color-text) }
+  /* Non-active tabs: high contrast per theme */
+  .topbar .tab:not(.active){ color: var(--duo-dark) }
+  @media (prefers-color-scheme: dark){ .topbar .tab:not(.active){ color:#fff } }
   /* Active tab: blue outline for clear selection */
   .tab.active{ background:transparent; border:none; outline:2px solid var(--blue); outline-offset:2px; color:var(--color-text) }
   .btn{ border:none; font-weight:900; letter-spacing:.2px; padding:12px 16px; border-radius:14px; cursor:pointer }
@@ -92,20 +75,14 @@
   /* Ensure buttons use the shared text color variable */
   #btnOpenGrammar{ color: var(--color-text) }
   #btnCheck{ color: var(--color-text) }
+  #btnAlphabetIntro{ color: var(--color-text) }
   #btnToddler{ color: var(--color-text) }
   #btnVocab{ color: var(--color-text) }
   #btnAudio{ color: var(--color-text) }
   #btnReading{ color: var(--color-text) }
   #btnGrammar{ color: var(--color-text) }
-  /* Tips button in skill cards should follow theme text color */
-  .btn.ghost.btnTips{ color: var(--color-text) }
-  /* Make some button text always black regardless of theme */
-  #btnStartNext{ color:#000 }
-  #btnAlphabetIntro{ color:#000 }
-  /* Always show black text for the Alphabet modal Start button (override .btn.primary) */
-  #alphStart{ color: #000 !important }
-  #btnprimary{ color:#000 }
-  .btn.blue.btnStartSkill{ color:#000 }
+  #btnVocab{ color: var(--color-text) }
+  #btnStartNext{ color: var(--color-text) }
   .toggle{ display:inline-flex; align-items:center; gap:8px; font-weight:700 }
   .toggle input{ width:42px; height:22px }
 
@@ -179,12 +156,6 @@
   .mc-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:10px; margin-top:10px }
   .opt{ text-align:left; padding:12px 14px; border:2px solid var(--border); border-radius:14px; background:linear-gradient(180deg, rgba(127,127,127,.04), rgba(127,127,127,.02)); font-size:1.05rem; transition:border .15s, transform .05s; color: var(--duo-dark); cursor:pointer }
   @media (prefers-color-scheme: dark){ .opt{ color:#fff } }
-  /* Theme-aware option & chip text color to ensure readability in both themes */
-  [data-theme="light"] .opt, [data-theme="light"] .chip{ color: #0e1318; }
-  [data-theme="dark"] .opt, [data-theme="dark"] .chip{ color: #eaf0f6; }
-  /* Also handle when OS-level prefers-color-scheme is used */
-  @media (prefers-color-scheme: light){ .opt, .chip{ color: #0e1318 } }
-  @media (prefers-color-scheme: dark){ .opt, .chip{ color: #eaf0f6 } }
   .opt:hover{ transform:translateY(-1px) } .opt.selected{ border-color: var(--blue) } .opt.correct{ border-color: var(--duo-green) } .opt.wrong{ border-color: var(--red) }
   .wb-bank, .wb-answer{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px }
   .chip{ border:1px solid var(--border); border-radius:10px; padding:8px 10px; background:#f2f6fa; font-weight:700; cursor:pointer }
@@ -232,11 +203,6 @@
   .deck-list{ display:grid; gap:8px; max-height:60vh; overflow:auto; }
   .deck-item{ display:grid; grid-template-columns: 1fr auto auto; gap:8px; align-items:center; padding:10px; border:1px solid var(--border); border-radius:12px; }
   .badge{ font-size:.8rem; border:1px solid var(--border); padding:3px 8px; border-radius:999px; color:var(--duo-muted) }
-  /* Topbar language badge: theme-aware background */
-  .logo .badge{ background:#f3f7fb }
-  @media (prefers-color-scheme: dark){ .logo .badge{ background:rgba(255,255,255,.08); border-color:#2a3845; color:#cfd8e3 } }
-  [data-theme="dark"] .logo .badge{ background:rgba(255,255,255,.08); border-color:var(--border); color:var(--duo-muted) }
-  [data-theme="light"] .logo .badge{ background:#f3f7fb; border-color:var(--border); color:var(--duo-muted) }
   footer{ padding:24px; color:var(--duo-muted); text-align:center }
 
   /* Mini toast */
@@ -251,7 +217,7 @@
 </head>
 <body>
   <div class="topbar">
-    <div class="logo"><button id="btnThemeToggle" class="logo-badge" title="Toggle theme" aria-label="Toggle theme"></button> MOVA <span class="badge">Ukrainain</span></div>
+    <div class="logo"><div class="logo-badge" aria-hidden="false"></div> MOVA <span class="badge">Ukrainain</span></div>
     <div class="tabbar">
       <button id="tabHome" class="tab active">Home</button>
       <button id="tabPractice" class="tab">Practice</button>
@@ -1700,25 +1666,6 @@ function startLesson(skillId){
   }
 })();
 
-// Theme toggle: apply, persist, and label
-function applyTheme(theme){
-  const root = document.documentElement;
-  root.setAttribute('data-theme', theme);
-  try{ localStorage.setItem('theme', theme); }catch(_){ /* ignore */ }
-  const btn = document.getElementById('btnThemeToggle');
-  if(btn && !btn.classList.contains('logo-badge')){
-    btn.textContent = theme==='dark' ? 'Dark' : 'Light';
-  }
-}
-(function initTheme(){
-  let theme = 'light';
-  try{ theme = localStorage.getItem('theme') || 'light'; }catch(_){ theme = 'light'; }
-  applyTheme(theme);
-  const btn = document.getElementById('btnThemeToggle');
-  if(btn){ btn.addEventListener('click', ()=> applyTheme((document.documentElement.getAttribute('data-theme')==='dark')?'light':'dark')); }
-})();
 </script>
 </body>
 </html>
-
-
