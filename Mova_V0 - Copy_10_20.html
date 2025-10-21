@@ -18,7 +18,7 @@
     --gold:#ffb300;
     --red:#ff4b4b;
     --blue:#1cb0f6;
-    --shadow:0 14px 40px rgba(10,20,30,.08);
+  --shadow:0 14px 40px rgba(10,20,30,.08);
     --radius:18px;
     --radius-sm:12px;
     --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
@@ -99,23 +99,18 @@
   /* Ensure buttons use the shared text color variable */
   #btnOpenGrammar{ color: var(--color-text) }
   #btnCheck{ color: var(--color-text) }
-  /* Library Clear button should follow theme text color (light/dark) */
-  #libClear{ color: var(--color-text) }
-  /* Ensure practice action buttons use the centralized primary foreground (always black) */
-  #btnToddler{ color: var(--primary-foreground) }
-  #btnVocab{ color: var(--primary-foreground) }
-  #btnAudio{ color: var(--primary-foreground) }
-  #btnReading{ color: var(--primary-foreground) }
-  #btnGrammar{ color: var(--primary-foreground) }
+  #btnToddler{ color: var(--color-text) }
+  #btnVocab{ color: var(--color-text) }
+  #btnAudio{ color: var(--color-text) }
+  #btnReading{ color: var(--color-text) }
+  #btnGrammar{ color: var(--color-text) }
   /* Tips button in skill cards should follow theme text color */
   .btn.ghost.btnTips{ color: var(--color-text) }
   /* Make some button text always black regardless of theme */
   #btnStartNext{ color:#000 }
   #btnAlphabetIntro{ color:#000 }
   /* Ensure the Alphabet modal Start button has black text (use a more specific selector instead of !important) */
-  .modal .actions .btn.primary#alphStart{ color: var(--primary-foreground) }
-  /* Ensure the in-lesson Alphabet 'Next' button is black in both light and dark themes */
-  .modal #alphLessonView .actions .btn.primary#alphNext{ color: var(--primary-foreground) }
+  .modal .actions .btn.primary#alphStart{ color: #000 }
   #btnprimary{ color:#000 }
   .btn.blue.btnStartSkill{ color:#000 }
   .toggle{ display:inline-flex; align-items:center; gap:8px; font-weight:700 }
@@ -138,8 +133,7 @@
   /* Alphabet module styles */
   .alph-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(90px, 1fr)); gap:8px; margin-top:10px }
   .alph-btn{ display:grid; gap:6px; align-items:center; justify-items:center; padding:10px; border:2px solid var(--border); border-radius:12px; background:linear-gradient(180deg, rgba(127,127,127,.06), rgba(127,127,127,.03)); cursor:pointer }
-  /* Use theme-aware text color so letters are visible in light and dark themes */
-  .alph-btn .letters{ font-weight:900; font-size:1.2rem; color:var(--color-text) }
+  .alph-btn .letters{ font-weight:900; font-size:1.2rem; color:#fff }
   .alph-btn .trans{ font-size:.9rem; color:var(--duo-muted) }
   .alph-btn:active{ transform:scale(.98) }
   .alph-head{ display:flex; align-items:center; justify-content:space-between; gap:10px }
@@ -150,8 +144,6 @@
   .modal .muted{ color:var(--duo-muted) }
   .modal .actions{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:12px }
   .alph-bigletter{ font-size:5rem; text-align:center; margin:10px 0 }
-  .alph-bigletter .ua{ display:block }
-  .alph-bigletter .phonetic{ font-size:1.05rem; color:var(--duo-muted); margin-top:6px }
   .progress{ height:8px; background:#e5eaf0; border-radius:6px; overflow:hidden }
   .progress > div{ height:100%; background:var(--blue); width:0 }
   /* Ensure Close button in Alphabet overlay has strong contrast */
@@ -368,8 +360,10 @@
       <div class="grid-cards">
         <div class="card">
           <div class="title">🍼 Toddler Mode</div>
-          <div class="muted">Caregiver phrases, simple commands, routines, toys & body.</div>
-          <button id="btnToddler" class="btn blue">Start Toddler Practice</button>
+          <div class="muted">Caregiver phrases, simple commands, routines, toys & body. Audio on; 10 tasks.</div>
+          <div style="display:flex; gap:8px; align-items:center">
+            <button id="btnToddler" class="btn blue" style="padding:12px 16px; border-radius:14px; font-weight:900">Start Toddler Practice</button>
+          </div>
         </div>
         <div class="card">
           <div class="title">🔤 Vocab Drill</div>
@@ -393,7 +387,7 @@
         </div>
         <div class="card">
           <div class="title">🎲 Mixed Review</div>
-          <div class="muted">A bit of everything from all unlocked skills.</div>
+          <div class="muted">A bit of everything from all unlocked skills. MC + Word‑bank only.</div>
           <button id="btnMixed" class="btn blue">Start Mixed Review</button>
         </div>
       </div>
@@ -499,8 +493,8 @@
       <div id="alphLessonView" style="display:none">
         <div class="title">Letter Practice</div>
         <div class="progress" aria-hidden="true"><div id="alphProg"></div></div>
-  <div id="alphBig" class="alph-bigletter"><div class="ua">А а</div><div class="phonetic" aria-hidden="true">a</div></div>
-  <div class="actions"><button class="btn" id="alphPlay" aria-label="Play letter sound">🔊</button><button class="btn primary" id="alphNext">Next</button></div>
+        <div id="alphBig" class="alph-bigletter">А а</div>
+        <div class="actions"><button class="btn" id="alphPlay">Play sound</button><button class="btn primary" id="alphNext">Next</button></div>
       </div>
     </div>
   </div>
@@ -599,48 +593,48 @@ function beep(ok=true){ try{ const ctx = new (window.AudioContext||window.webkit
    ALPHABET MODULE
    ======================== */
 const ALPHABET = [
-  {u:'А', l:'а', en:'a', phon:'a', speak:'а'},
-  {u:'Б', l:'б', en:'b', phon:'b', speak:'б'},
-  {u:'В', l:'в', en:'v', phon:'v', speak:'в'},
-  {u:'Г', l:'г', en:'h', phon:'h', speak:'г'},
-  {u:'Ґ', l:'ґ', en:'g', phon:'g', speak:'ґ'},
-  {u:'Д', l:'д', en:'d', phon:'d', speak:'д'},
-  {u:'Е', l:'е', en:'e', phon:'e', speak:'е'},
-  {u:'Є', l:'є', en:'ye', phon:'ye', speak:'є'},
-  {u:'Ж', l:'ж', en:'zh', phon:'zh', speak:'ж'},
-  {u:'З', l:'з', en:'z', phon:'z', speak:'з'},
-  {u:'И', l:'и', en:'y', phon:"y", speak:'и'},
-  {u:'І', l:'і', en:'i', phon:'i (ee)', speak:'і'},
-  {u:'Ї', l:'ї', en:'yi', phon:'yi', speak:'ї'},
-  {u:'Й', l:'й', en:'y', phon:'y', speak:'й'},
-  {u:'К', l:'к', en:'k', phon:'k', speak:'к'},
-  {u:'Л', l:'л', en:'l', phon:'l', speak:'л'},
-  {u:'М', l:'м', en:'m', phon:'m', speak:'м'},
-  {u:'Н', l:'н', en:'n', phon:'n', speak:'н'},
-  {u:'О', l:'о', en:'o', phon:'o', speak:'о'},
-  {u:'П', l:'п', en:'p', phon:'p', speak:'п'},
-  {u:'Р', l:'р', en:'r (rolled)', phon:'r', speak:'р'},
-  {u:'С', l:'с', en:'s', phon:'s', speak:'с'},
-  {u:'Т', l:'т', en:'t', phon:'t', speak:'т'},
-  {u:'У', l:'у', en:'u', phon:'u', speak:'у'},
-  {u:'Ф', l:'ф', en:'f', phon:'f', speak:'ф'},
-  {u:'Х', l:'х', en:'kh (like loch)', phon:'kh', speak:'х'},
-  {u:'Ц', l:'ц', en:'ts', phon:'ts', speak:'ц'},
-  {u:'Ч', l:'ч', en:'ch', phon:'ch', speak:'ч'},
-  {u:'Ш', l:'ш', en:'sh', phon:'sh', speak:'ш'},
-  {u:'Щ', l:'щ', en:'shch', phon:'shch', speak:'щ'},
-  {u:'Ь', l:'ь', en:"soft sign (palatalizes prior consonant)", phon:'soft sign', speak:''},
-  {u:'Ю', l:'ю', en:'yu', phon:'yu', speak:'ю'},
-  {u:'Я', l:'я', en:'ya', phon:'ya', speak:'я'}
+  {u:'А', l:'а', en:'a', speak:'а'},
+  {u:'Б', l:'б', en:'b', speak:'б'},
+  {u:'В', l:'в', en:'v', speak:'в'},
+  {u:'Г', l:'г', en:'h', speak:'г'},
+  {u:'Ґ', l:'ґ', en:'g', speak:'ґ'},
+  {u:'Д', l:'д', en:'d', speak:'д'},
+  {u:'Е', l:'е', en:'e', speak:'е'},
+  {u:'Є', l:'є', en:'ye/e', speak:'є'},
+  {u:'Ж', l:'ж', en:'zh', speak:'ж'},
+  {u:'З', l:'з', en:'z', speak:'з'},
+  {u:'И', l:'и', en:'y', speak:'и'},
+  {u:'І', l:'і', en:'i', speak:'і'},
+  {u:'Ї', l:'ї', en:'yi/i', speak:'ї'},
+  {u:'Й', l:'й', en:'y', speak:'й'},
+  {u:'К', l:'к', en:'k', speak:'к'},
+  {u:'Л', l:'л', en:'l', speak:'л'},
+  {u:'М', l:'м', en:'m', speak:'м'},
+  {u:'Н', l:'н', en:'n', speak:'н'},
+  {u:'О', l:'о', en:'o', speak:'о'},
+  {u:'П', l:'п', en:'p', speak:'п'},
+  {u:'Р', l:'р', en:'r', speak:'р'},
+  {u:'С', l:'с', en:'s', speak:'с'},
+  {u:'Т', l:'т', en:'t', speak:'т'},
+  {u:'У', l:'у', en:'u', speak:'у'},
+  {u:'Ф', l:'ф', en:'f', speak:'ф'},
+  {u:'Х', l:'х', en:'kh', speak:'х'},
+  {u:'Ц', l:'ц', en:'ts', speak:'ц'},
+  {u:'Ч', l:'ч', en:'ch', speak:'ч'},
+  {u:'Ш', l:'ш', en:'sh', speak:'ш'},
+  {u:'Щ', l:'щ', en:'shch', speak:'щ'},
+  {u:'Ь', l:'ь', en:"soft sign", speak:''},
+  {u:'Ю', l:'ю', en:'yu/u', speak:'ю'},
+  {u:'Я', l:'я', en:'ya/ia', speak:'я'}
 ];
 function buildAlphabetGrid(){
   const root = document.getElementById('alphabetGrid');
   if(!root || root.dataset.built) return;
   root.dataset.built = '1';
   root.innerHTML = ALPHABET.map((x,i)=>`
-    <button class="alph-btn" data-idx="${i}" aria-label="${x.u}${x.l} ${x.phon}">
+    <button class="alph-btn" data-idx="${i}" aria-label="${x.u}${x.l} ${x.en}">
       <div class="letters">${x.u} ${x.l}</div>
-      <div class="trans">${x.phon}</div>
+      <div class="trans">${x.en}</div>
     </button>`).join('');
   root.querySelectorAll('.alph-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{ const i = +btn.dataset.idx; playLetter(i); });
@@ -660,9 +654,7 @@ function startAlphabetExercise(){
 function showAlphStep(){
   const L = ALPH_SESSION.order[ALPH_SESSION.idx];
   if(!L){ closeAlphabet(); return; }
-  const big = document.getElementById('alphBig'); if(big){ const ua = big.querySelector('.ua'); const ph = big.querySelector('.phonetic'); if(ua) ua.textContent = `${L.u} ${L.l}`; if(ph) ph.textContent = (L.phon || L.en || L.speak || ''); }
-  // Auto-play the letter sound when the step is shown (fallback to speak()).
-  try{ const toSay = L.speak || L.u; if(toSay) try{ speak(toSay); }catch(e){ beep(true); } }catch(e){}
+  const big = document.getElementById('alphBig'); if(big) big.textContent = `${L.u} ${L.l}`;
   const prog = document.getElementById('alphProg'); if(prog){ const pct = Math.round((ALPH_SESSION.idx)/ALPH_SESSION.order.length*100); prog.style.width = pct+"%"; }
 }
 document.addEventListener('click', (e)=>{
