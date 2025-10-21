@@ -114,8 +114,11 @@
   #btnAlphabetIntro{ color:#000 }
   /* Ensure the Alphabet modal Start button has black text (use a more specific selector instead of !important) */
   .modal .actions .btn.primary#alphStart{ color: var(--primary-foreground) }
-  /* Ensure the in-lesson Alphabet 'Next' button is black in both light and dark themes */
-  .modal #alphLessonView .actions .btn.primary#alphNext{ color: var(--primary-foreground) }
+  /* Ensure the in-lesson Alphabet 'Check' and 'Continue' buttons are black in both light and dark themes */
+  .modal #alphLessonView .actions .btn.primary#alphCheck{ color: var(--primary-foreground) }
+  .modal #alphLessonView .actions .btn.primary#alphContinue{ color: var(--primary-foreground) }
+  /* Force CHECK/CONTINUE button text to black (do not invert with theme) */
+  #alphLessonView .actions .btn.primary#alphCheck, #alphLessonView .actions .btn.primary#alphContinue{ color: #000 }
   #btnprimary{ color:#000 }
   .btn.blue.btnStartSkill{ color:#000 }
   .toggle{ display:inline-flex; align-items:center; gap:8px; font-weight:700 }
@@ -146,14 +149,38 @@
   .overlay{ position:fixed; inset:0; background:rgba(0,0,0,.45); display:none; align-items:center; justify-content:center; z-index:50 }
   .overlay.open{ display:flex }
   .modal{ width:min(720px, 92vw); max-height:90vh; overflow:auto; background:var(--panel); border:1px solid var(--border); border-radius:16px; box-shadow:var(--shadow); padding:18px; }
+  /* allow positioning of an inner close button */
+  .modal{ position:relative; }
   .modal .title{ font-weight:900; font-size:1.3rem; margin-bottom:8px }
   .modal .muted{ color:var(--duo-muted) }
   .modal .actions{ display:flex; gap:8px; align-items:center; justify-content:flex-end; margin-top:12px }
   .alph-bigletter{ font-size:5rem; text-align:center; margin:10px 0 }
   .alph-bigletter .ua{ display:block }
   .alph-bigletter .phonetic{ font-size:1.05rem; color:var(--duo-muted); margin-top:6px }
+  /* hide the phonetic text inside the lesson view (keep in DOM for a11y or reuse) */
+  #alphLessonView .phonetic{ display:none }
+  /* leave space on the left so the close X doesn't overlap the progress bar */
+  #alphLessonView .progress{ margin-left:56px; margin-right:12px }
+
+  /* Option buttons (phonetics) */
+  .alph-options{ display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:8px; margin-top:12px }
+  .alph-option{ padding:12px 14px; border:2px solid var(--border); border-radius:12px; background: linear-gradient(180deg, rgba(127,127,127,.03), rgba(127,127,127,.01)); cursor:pointer; font-weight:800; text-align:center; color:var(--color-text) }
+  .alph-option.selected{ border-color: var(--blue); box-shadow: 0 6px 18px rgba(28,176,246,.12); }
+  .alph-option.correct{ border-color: var(--duo-green); background: linear-gradient(180deg, rgba(127,255,127,.06), rgba(127,255,127,.02)) }
+  .alph-option.wrong{ border-color: var(--red); background: linear-gradient(180deg, rgba(255,127,127,.04), rgba(255,127,127,.02)) }
+  .alph-option:disabled{ opacity:.5; cursor:not-allowed }
+
+  /* Top-left X button inside the modal for closing the lesson and returning home */
+  .modal .modal-close-lesson{
+    position:absolute; top:12px; left:12px; border:1px solid var(--border); background:transparent; color:var(--duo-muted);
+    padding:6px 8px; border-radius:8px; cursor:pointer; font-weight:800;
+  }
+  .modal .modal-close-lesson:hover{ filter:brightness(1.06) }
   .progress{ height:8px; background:#e5eaf0; border-radius:6px; overflow:hidden }
   .progress > div{ height:100%; background:var(--blue); width:0 }
+  /* Toast variations for feedback popups */
+  .toast.success{ background: var(--duo-green); color: #000 }
+  .toast.error{ background: var(--red); color: #fff }
   /* Ensure Close button in Alphabet overlay has strong contrast */
   #alphClose{ background:#1f2a37; color:#fff; border-color:#2b3a46 }
   #alphClose:hover{ filter:brightness(1.08) }
@@ -162,6 +189,8 @@
     background: conic-gradient(var(--duo-green) var(--p,0%), #cfd8dc 0);
     display:grid; place-items:center; color:#fff; font-weight:900; box-shadow: inset 0 0 0 4px rgba(255,255,255,.4);
   }
+  /* Force the dailyRing number to always be black */
+  #dailyRing{ color:#000 }
   .goal{ display:flex; gap:10px; align-items:center; justify-content:flex-end }
   .goal .mini{ font-size:.85rem; color:var(--duo-muted) }
 
@@ -496,12 +525,26 @@
         <div id="alphabetGrid" class="alph-grid"></div>
         <div class="actions"><button class="btn ghost" id="alphClose">Close</button><button class="btn primary" id="alphStart">Start</button></div>
       </div>
-      <div id="alphLessonView" style="display:none">
-        <div class="title">Letter Practice</div>
-        <div class="progress" aria-hidden="true"><div id="alphProg"></div></div>
+  <div id="alphLessonView" style="display:none">
+    <button type="button" class="modal-close-lesson" id="alphCloseLesson" aria-label="Close lesson">✕</button>
+    <div class="progress" aria-hidden="true"><div id="alphProg"></div></div>
+    <div class="title" id="alphLessonTitle" style="text-align:center; margin-top:6px">What sound does this letter make?</div>
   <div id="alphBig" class="alph-bigletter"><div class="ua">А а</div><div class="phonetic" aria-hidden="true">a</div></div>
-  <div class="actions"><button class="btn" id="alphPlay" aria-label="Play letter sound">🔊</button><button class="btn primary" id="alphNext">Next</button></div>
-      </div>
+  <div class="alph-options" id="alphOptions" role="list"></div>
+  <div class="action-bar">
+    <div style="flex:1"></div>
+    <div class="action-group">
+      <div id="alphFeedback" class="feedback" style="display:none" aria-live="polite"></div>
+      <div class="actions"><button class="btn" id="alphPlay" aria-label="Play letter sound">🔊</button><button class="btn primary" id="alphCheck">CHECK</button><button class="btn red" id="alphGotIt" style="display:none">Got it</button></div>
+    </div>
+  </div>
+  </div>
+  <!-- Alphabet complete modal (centered) -->
+  <div id="alphComplete" style="display:none; text-align:center; padding:18px; margin-top:12px">
+    <h2>Congratulations!</h2>
+    <p class="muted">Great job — you completed the alphabet practice.</p>
+    <div style="margin-top:12px"><button id="alphCloseComplete" class="btn primary" style="color:#000;">Close</button></div>
+  </div>
     </div>
   </div>
 
@@ -665,6 +708,99 @@ function showAlphStep(){
   try{ const toSay = L.speak || L.u; if(toSay) try{ speak(toSay); }catch(e){ beep(true); } }catch(e){}
   const prog = document.getElementById('alphProg'); if(prog){ const pct = Math.round((ALPH_SESSION.idx)/ALPH_SESSION.order.length*100); prog.style.width = pct+"%"; }
 }
+// ---------- Alphabet lesson: options & checking ----------
+function makeDistractors(correctPhon, count=3){
+  // pick random phonetics from alphabet excluding the correct one
+  const pool = ALPHABET.map(x=>x.phon).filter(p=>p && p!==correctPhon);
+  const s = shuffle(pool).slice(0,count);
+  return s;
+}
+function renderAlphOptions(){
+  const L = ALPH_SESSION.order[ALPH_SESSION.idx];
+  const root = document.getElementById('alphOptions');
+  if(!L || !root) return;
+  const correct = L.phon || L.en || '';
+  const opts = [correct, ...makeDistractors(correct,3)];
+  const shuffled = shuffle(opts);
+  root.innerHTML = shuffled.map((p,i)=>`<button role="listitem" class="alph-option" data-phon="${escapeHtml(p)}">${p}</button>`).join('');
+}
+function escapeHtml(s){ return (s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// selection handling
+document.addEventListener('click', (e)=>{
+  const t = e.target;
+  if(!(t instanceof Element)) return;
+  if(t.classList.contains('alph-option')){
+    // toggle selection: only one selected at a time
+    const root = document.getElementById('alphOptions');
+    if(!root) return;
+    root.querySelectorAll('.alph-option').forEach(b=> b.classList.remove('selected'));
+    t.classList.add('selected');
+  }
+  if(t.id === 'alphCheck'){
+    // evaluate but do NOT auto-advance. Show feedback and require manual continue.
+    const root = document.getElementById('alphOptions');
+    const sel = root && root.querySelector('.alph-option.selected');
+    if(!sel){ toast('Please select an option'); return; }
+    const chosen = sel.dataset.phon;
+    const L = ALPH_SESSION.order[ALPH_SESSION.idx];
+    const correct = (L.phon || L.en || '');
+    const checkBtn = document.getElementById('alphCheck');
+    const gotBtn = document.getElementById('alphGotIt');
+    const fb = document.getElementById('alphFeedback');
+    if(chosen === correct){
+      // correct — show success feedback, highlight correct, replace Check with Continue
+      if(fb){ fb.style.display='block'; fb.className='feedback good'; fb.innerHTML = `<strong>Correct!</strong>`; }
+      root.querySelectorAll('.alph-option').forEach(b=>{ if(b.dataset.phon===correct) b.classList.add('correct'); b.disabled = true; });
+      if(checkBtn) checkBtn.style.display = 'none';
+      if(gotBtn) gotBtn.style.display = 'none';
+      // create or show Continue button
+      let cont = document.getElementById('alphContinue');
+      if(!cont){ cont = document.createElement('button'); cont.className='btn primary'; cont.id='alphContinue'; cont.textContent='CONTINUE'; document.querySelector('#alphLessonView .actions').appendChild(cont); }
+      else { cont.style.display = 'inline-block'; }
+    } else {
+      // incorrect — show feedback next to buttons, highlight wrong and correct, replace Check with Got it
+      if(fb){ fb.style.display='block'; fb.className='feedback bad'; fb.innerHTML = `<strong>Not quite.</strong> <span class="muted">Answer: ${correct}</span>`; }
+      root.querySelectorAll('.alph-option').forEach(b=>{ if(b.dataset.phon===correct) b.classList.add('correct'); if(b.dataset.phon===chosen) b.classList.add('wrong'); b.disabled = true; });
+      if(checkBtn) checkBtn.style.display = 'none';
+      if(gotBtn) gotBtn.style.display = 'inline-block';
+      // ensure any continue button is hidden
+      const cont = document.getElementById('alphContinue'); if(cont) cont.style.display='none';
+    }
+  }
+  if(t.id === 'alphGotIt'){
+    // advance to next letter (same as correct). Reset UI and move forward.
+    const got = document.getElementById('alphGotIt'); if(got) got.style.display = 'none';
+    const cont = document.getElementById('alphContinue'); if(cont) cont.style.display='none';
+    ALPH_SESSION.idx++;
+  if(ALPH_SESSION.idx>=ALPH_SESSION.order.length){ showAlphComplete(); }
+    else { showAlphStep(); renderAlphOptions(); }
+  }
+  if(t.id === 'alphContinue'){
+    // user clicked continue after correct
+    const cont = document.getElementById('alphContinue'); if(cont) cont.style.display='none';
+    const got = document.getElementById('alphGotIt'); if(got) got.style.display = 'none';
+    ALPH_SESSION.idx++;
+  if(ALPH_SESSION.idx>=ALPH_SESSION.order.length){ showAlphComplete(); }
+  else { showAlphStep(); renderAlphOptions(); }
+  }
+});
+
+// ensure options render when step is shown
+const origShowAlphStep = showAlphStep;
+function showAlphStepWrapper(){
+  origShowAlphStep();
+  renderAlphOptions();
+  // reset feedback and buttons
+  const fb = document.getElementById('alphFeedback'); if(fb){ fb.style.display='none'; fb.className='feedback'; fb.innerHTML=''; }
+  const got = document.getElementById('alphGotIt'); if(got) got.style.display='none';
+  const checkBtn = document.getElementById('alphCheck'); if(checkBtn){ checkBtn.style.display='inline-block'; checkBtn.disabled=false; }
+  const cont = document.getElementById('alphContinue'); if(cont) cont.style.display='none';
+  // clear option classes and re-enable
+  const root = document.getElementById('alphOptions'); if(root){ root.querySelectorAll('.alph-option').forEach(b=>{ b.classList.remove('selected','correct','wrong'); b.disabled = false; }); }
+}
+// replace references by reassigning the function name used elsewhere
+showAlphStep = showAlphStepWrapper;
 document.addEventListener('click', (e)=>{
   const t = e.target;
   if(!(t instanceof Element)) return;
@@ -672,7 +808,8 @@ document.addEventListener('click', (e)=>{
   if(t.id==='alphClose'){ closeAlphabet(); }
   if(t.id==='alphStart'){ startAlphabetExercise(); }
   if(t.id==='alphPlay'){ const L = ALPH_SESSION.order[ALPH_SESSION.idx]; if(L) try{ speak(L.speak || L.u); }catch(e){ beep(true); } }
-  if(t.id==='alphNext'){ ALPH_SESSION.idx++; if(ALPH_SESSION.idx>=ALPH_SESSION.order.length){ toast('Alphabet session complete'); closeAlphabet(); } else { showAlphStep(); } }
+  if(t.id==='alphNext'){ ALPH_SESSION.idx++; if(ALPH_SESSION.idx>=ALPH_SESSION.order.length){ showAlphComplete(); } else { showAlphStep(); } }
+  if(t.id==='alphCloseLesson'){ closeAlphabet(); setView('#home'); }
 });
 const deckByKey = k => BUILTIN_DECKS[k];
 
@@ -703,6 +840,21 @@ function saveProgress(){ localStorage.setItem(LS_KEYS.progress, JSON.stringify(p
 function skillLevel(id){ return progress[id]?.level || 0; }
 function addXP(amount){ profile.xp += amount; profile.xpToday += amount; saveProfile(); renderTopbar(); renderHomeHero(); }
 function completeSkill(id){ const lvl = skillLevel(id); progress[id] = { level: Math.min(lvl+1, 3) }; saveProgress(); }
+
+// Show alphabet complete modal and award XP/streak
+function showAlphComplete(){
+  try{
+    // award XP and refresh daily/streak
+    addXP(10);
+    refreshDaily();
+    // show centered complete box inside the overlay
+    const ac = document.getElementById('alphComplete'); if(ac){ ac.style.display='block'; }
+    // hide lesson content
+    const lv = document.getElementById('alphLessonView'); if(lv) lv.style.display='none';
+    // wire close button
+    const c = document.getElementById('alphCloseComplete'); if(c){ c.onclick = ()=>{ const ac=document.getElementById('alphComplete'); if(ac) ac.style.display='none'; closeAlphabet(); } }
+  }catch(e){ closeAlphabet(); }
+}
 
 /* ========================
    DATA — Grammar Topics, Decks, Skills
@@ -1545,7 +1697,7 @@ function renderTask(){
     const title = CURRENT.skillId==="__quick__" ? (CURRENT.quickName||"Practice") : (SKILLS.find(s=>s.id===CURRENT.skillId)?.name || "Lesson");
     $('#lessonTitle').textContent = title;
     $('#feedback').style.display='none'; $('#feedback').className='feedback'; $('#btnCheck').disabled = true; $('#btnIDK').disabled = false; checking=false;
-    const bc=$('#btnCheck'); if(bc){ bc.textContent='CHECK'; bc.classList.remove('red'); bc.classList.add('primary'); bc.dataset.mode='check'; }
+    const bc=$('#btnCheck'); if(bc){ bc.textContent='Check'; bc.classList.remove('red'); bc.classList.add('primary'); bc.dataset.mode='check'; }
     const t = CURRENT.tasks[CURRENT.idx];
     if(!t){ $('#promptLabel').textContent="Loading task…"; $('#mcWrap').innerHTML=""; $('#wbWrap').style.display='none'; $('#mediaArea').innerHTML=""; return; }
     $('#subtitle').textContent = t.direction==='uk-en' ? 'Translate to English' : t.direction==='en-uk' ? 'Choose the Ukrainian translation' : (t.direction==='animal-sound'?'Tap the animal, then choose its sound':'Choose the correct form');
