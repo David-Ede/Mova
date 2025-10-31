@@ -1,0 +1,2 @@
+ukrainian_lessons_gold = #fcc812
+ukrainian_lessons_blue = #2960c4

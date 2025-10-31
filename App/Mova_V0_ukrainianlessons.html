@@ -4,13 +4,13 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <link rel="icon" type="image/png" href="assets/images/favicon_8.png" />
-<title>MOVA — Ukrainain</title>
+<title>MOVA - Language Meets Culture</title>
 <style>
   :root{
     --duo-green:#7FE12E; /* original gradient green color #58CC02 */
     --duo-green-2:#7FE12E;
     --duo-dark:#071B0C;
-    --color-text:#0e1318;
+    --color-text:#eaf0f6;
     --duo-muted:#6b7580;
     --panel:#ffffff;
     --bg:#F7F9FB;
@@ -18,23 +18,25 @@
     --purple:#7c4dff;
     --gold:#ffb300;
     --red:#ff4b4b;
-    --blue:#1cb0f6;
+    --blue:#49c1ff;
+    --UL-gold:#fcc812;
+    --UL-blue:#2960c4;
     --shadow:0 14px 40px rgba(10,20,30,.08);
     --radius:18px;
     --radius-sm:12px;
     --font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
     --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     /* Primary button color tokens (centralized for theming) */
-    --primary-start: #2960c4;
-    --primary-end: #fcc812;
-    --primary-foreground: #fff; /* button text color on primary background (black) */
+    --primary-start: var(--UL-blue);
+    --primary-end: var(--UL-blue);
+    --primary-foreground: #000; /* button text color on primary background (black) */
     /* Tip box theme tokens */
     --tip-bg: #fff7e6;
     --tip-border: #ffe0a3;
     --tip-color: var(--color-text);
     /* Primary CTA (Start Next) tokens, used by button and skill ring */
-    --cta-start: var(--duo-green);
-    --cta-end: var(--duo-green);
+    --cta-start: var(--UL-gold);
+    --cta-end: var(--UL-gold);
   }
   @media (prefers-color-scheme: dark){
     :root{
@@ -87,13 +89,13 @@
   }
   @media (prefers-color-scheme: dark){ .topbar{ background:rgba(0,0,0,.25) } }
   .logo{ display:flex; gap:10px; align-items:center; font-weight:900; letter-spacing:.2px }
+  .logo-caption{ font-size:1.2rem; font-weight:900 }
   .logo-badge{
-    width:38px; height:24px; border-radius:6px;
-    background: linear-gradient(180deg, #005bbb 0% 50%, #ffd500 50% 100%);
-    border:2px solid #ffffff;
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:0; margin:0; background:transparent; border:none; box-shadow:none;
+    width:auto; height:auto; cursor:pointer;
   }
+  .logo-img{ height:24px; width:auto; display:block }
   .topbar .stats{ display:flex; gap:12px; align-items:center }
   .pill{
     display:inline-flex; align-items:center; gap:8px;
@@ -368,7 +370,7 @@
   body{ font-size:15px; }
   .topbar{ padding:8px 12px; gap:8px; }
   .logo{ font-size:1rem }
-  .logo-badge{ width:34px; height:20px }
+  .logo-img{ height:20px }
   .tabbar{ display:none; position:absolute; left:0; right:0; top:56px; background:var(--panel); border-bottom:1px solid var(--border); padding:8px; gap:8px; flex-wrap:wrap; z-index:30 }
   .stats{ display:none }
   body.nav-open .tabbar{ display:flex; flex-direction:row; justify-content:flex-start; gap:6px }
@@ -415,7 +417,7 @@
 </head>
 <body>
   <div class="topbar">
-    <div class="logo"><button id="btnThemeToggle" class="logo-badge" title="Toggle theme" aria-label="Toggle theme"></button> MOVA <span class="badge">Ukrainain</span></div>
+    <div class="logo"><button id="btnThemeToggle" class="logo-badge" title="Toggle theme" aria-label="Toggle theme"><img src="assets/images/UL_logo.png" alt="Ukrainian Lessons" class="logo-img"></button> <span class="logo-caption">MOVA x UkrainianLessons.com</span></div>
     <!-- Mobile nav toggle (visible only via CSS on small screens) -->
     <button id="btnNavToggle" class="btn" aria-expanded="false" aria-label="Toggle navigation" title="Open navigation">☰</button>
     <div class="tabbar">
@@ -1481,7 +1483,7 @@ Object.assign(BUILTIN_DECKS, {
 
 /* SKILLS — expanded path */
 const SKILLS = [
-  {id:"basics1", name:"Basics 1", emoji:"🔤", decks:["greetings","basics_core","basics_pronouns_q","numbers","numbers_11_20"], tips:`
+  {id:"basics1", name:"Basics 1", emoji:"🔤", decks:["greetings","basics_core","basics_pronouns_q"], tips:`
     <p><strong>What you’ll learn</strong>: greetings, polite phrases, question words, and numbers.</p>
     <ul>
       <li><strong>Articles:</strong> Ukrainian has no “a/an/the”. English answers may include them.</li>
